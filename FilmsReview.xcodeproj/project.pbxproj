@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCC5BEB2E0C821600F092EF /* Swinject */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B13A80E72E09935A00131ADC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = FilmsReview;
 			packageProductDependencies = (
+				8BCC5BEB2E0C821600F092EF /* Swinject */,
 			);
 			productName = FilmsReview;
 			productReference = B13A80D02E09935600131ADC /* FilmsReview.app */;
@@ -208,6 +214,9 @@
 			);
 			mainGroup = B13A80C72E09935600131ADC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B13A80D12E09935600131ADC /* Products */;
 			projectDirPath = "";
@@ -569,6 +578,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Swinject/Swinject";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8BCC5BEB2E0C821600F092EF /* Swinject */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = Swinject;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B13A80C82E09935600131ADC /* Project object */;
 }
