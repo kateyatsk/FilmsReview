@@ -9,9 +9,8 @@ import UIKit
 
 final class AppRouter {
     static func startApp(window: UIWindow) {
-        let vc = MovieListViewController()
-        let navigation = UINavigationController(rootViewController: vc)
-        window.rootViewController = navigation
+        let viewController = DependencyContainer.shared.container.resolve(MovieListViewController.self)!
+        window.rootViewController = UINavigationController(rootViewController: viewController)
         window.makeKeyAndVisible()
     }
 }

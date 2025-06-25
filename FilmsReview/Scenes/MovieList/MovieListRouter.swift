@@ -6,14 +6,21 @@
 //
 
 import Foundation
+import Swinject
+import UIKit
 
-protocol MovieListRoutingLogic {}
-
-protocol MovieListDataPassing {
-    var dataStore: MovieListDataStore? { get }
+protocol MovieListRouterProtocol: RouterProtocol {
+    func navigateToDetail()
 }
 
-final class MovieListRouter: MovieListRoutingLogic, MovieListDataPassing {
-    weak var viewController: MovieListViewController?
-    var dataStore: MovieListDataStore?
+final class MovieListRouter: MovieListRouterProtocol {
+    weak var viewController: (any ViewControllerProtocol)?
+    
+    init(viewController: ViewControllerProtocol? = nil) {
+        self.viewController = viewController
+    }
+    
+    func navigateToDetail() {
+        print("navigated to details")
+    }
 }
