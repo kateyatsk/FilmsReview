@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B8CC0DC2E0ED13D00080537 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B8CC0DB2E0ED13D00080537 /* GoogleService-Info.plist */; };
+		8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0DE2E0ED19300080537 /* FirebaseAuth */; };
+		8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0E02E0ED19300080537 /* FirebaseCore */; };
 		8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCC5BEB2E0C821600F092EF /* Swinject */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8B8CC0DB2E0ED13D00080537 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B13A80D02E09935600131ADC /* FilmsReview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FilmsReview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13A80E62E09935A00131ADC /* FilmsReviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FilmsReviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13A80F02E09935A00131ADC /* FilmsReviewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FilmsReviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +74,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */,
+				8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */,
+				8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +103,7 @@
 				B13A80E92E09935A00131ADC /* FilmsReviewTests */,
 				B13A80F32E09935A00131ADC /* FilmsReviewUITests */,
 				B13A80D12E09935600131ADC /* Products */,
+				8B8CC0DB2E0ED13D00080537 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -131,6 +138,8 @@
 			name = FilmsReview;
 			packageProductDependencies = (
 				8BCC5BEB2E0C821600F092EF /* Swinject */,
+				8B8CC0DE2E0ED19300080537 /* FirebaseAuth */,
+				8B8CC0E02E0ED19300080537 /* FirebaseCore */,
 			);
 			productName = FilmsReview;
 			productReference = B13A80D02E09935600131ADC /* FilmsReview.app */;
@@ -216,6 +225,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */,
+				8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B13A80D12E09935600131ADC /* Products */;
@@ -234,6 +244,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B8CC0DC2E0ED13D00080537 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +591,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
 		8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Swinject/Swinject";
@@ -591,6 +610,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8B8CC0DE2E0ED19300080537 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		8B8CC0E02E0ED19300080537 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		8BCC5BEB2E0C821600F092EF /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */;
