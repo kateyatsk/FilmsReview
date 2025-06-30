@@ -7,42 +7,41 @@
 
 import Swinject
 
-// Assembly for Scene
 class MovieListAssembly: Assembly {
     func assemble(container: Container) {
-        // Register ViewController
-        container.register(MovieListViewController.self) { resolver in
-            let initialView = MovieListViewController()
-            
-            return initialView
+        container.register(MovieListViewController.self) { _ in
+           MovieListViewController()
         }
-        .inObjectScope(.container)
+        .inObjectScope(.graph)
         .initCompleted { resolver, viewController in
-            // Inject dependencies after initialization
             viewController.interactor = resolver.resolve(MovieListInteractor.self)!
             viewController.router = resolver.resolve(MovieListRouter.self)!
         }
         
-        // Register Worker
-        container.register(MovieListWorker.self) { resolver in
+        container.register(MovieListWorker.self) { _ in
             MovieListWorker()
-        }.inObjectScope(.container) // Singleton scope
+        }.inObjectScope(.container)
         
-        // Register Interactor
         container.register(MovieListInteractor.self) { resolver in
             MovieListInteractor(
                 presenter: resolver.resolve(MovieListPresenter.self)!,
                 worker: resolver.resolve(MovieListWorker.self)!)
-        }.inObjectScope(.container)
-
-        // Register Presenter
-        container.register(MovieListPresenter.self) { resolver in
-            MovieListPresenter(viewController: resolver.resolve(MovieListViewController.self)!)
-        }.inObjectScope(.container)
-
-        // Register Router
-        container.register(MovieListRouter.self) { resolver in
-            MovieListRouter(viewController: resolver.resolve(MovieListViewController.self)!)
-        }.inObjectScope(.container)
+        }.inObjectScope(.graph)
+        
+        container.register(MovieListPresenter.self) { _ in
+            MovieListPresenter()
+        }
+        .inObjectScope(.graph)
+        .initCompleted { resolver, presenter in
+            presenter.viewController = resolver.resolve(MovieListViewController.self)
+        }
+        
+        container.register(MovieListRouter.self) { _ in
+            MovieListRouter()
+        }
+        .inObjectScope(.graph)
+        .initCompleted { resolver, router in
+            router.viewController = resolver.resolve(MovieListViewController.self)
+        }
     }
 }
