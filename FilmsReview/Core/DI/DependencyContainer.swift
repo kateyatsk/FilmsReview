@@ -18,8 +18,8 @@ class DependencyContainer {
 
     private func registerDependencies() {
         let assembler = Assembler([
-            MovieListAssembly()
-            //add other assemblies for other scenes
+            MovieListAssembly(),
+            OnboardingAssembly()
         ], container: container)
     }
 }
