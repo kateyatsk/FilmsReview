@@ -7,37 +7,20 @@
 
 import Foundation
 import Swinject
+import UIKit
 
 class OnboardingAssembly: Assembly {
     func assemble(container: Container) {
         
-        container.register(OnboardingFirstViewController.self) { _ in
-           OnboardingFirstViewController()
+        container.register(OnboardingViewController.self) { _ in
+            OnboardingViewController()
         }
         .inObjectScope(.graph)
-        .initCompleted { resolver, viewController in
-            viewController.interactor = resolver.resolve(OnboardingInteractor.self)!
-            viewController.router = resolver.resolve(OnboardingRouter.self)!
+        .initCompleted { resolver, vc in
+            vc.interactor = resolver.resolve(OnboardingInteractor.self)!
+            vc.router = resolver.resolve(OnboardingRouter.self)!
         }
         
-        container.register(OnboardingSecondViewController.self) { _ in
-           OnboardingSecondViewController()
-        }
-        .inObjectScope(.graph)
-        .initCompleted { resolver, viewController in
-            viewController.interactor = resolver.resolve(OnboardingInteractor.self)!
-            viewController.router = resolver.resolve(OnboardingRouter.self)!
-        }
-        
-        container.register(OnboardingThirdViewController.self) { _ in
-           OnboardingThirdViewController()
-        }
-        .inObjectScope(.graph)
-        .initCompleted { resolver, viewController in
-            viewController.interactor = resolver.resolve(OnboardingInteractor.self)!
-            viewController.router = resolver.resolve(OnboardingRouter.self)!
-        }
-         
         container.register(OnboardingWorker.self) { _ in
             OnboardingWorker()
         }.inObjectScope(.container)
@@ -52,11 +35,17 @@ class OnboardingAssembly: Assembly {
             OnboardingPresenter()
         }
         .inObjectScope(.graph)
+        .initCompleted { resolver, presenter in
+            presenter.viewController = resolver.resolve(OnboardingViewController.self)
+        }
         
         container.register(OnboardingRouter.self) { _ in
             OnboardingRouter()
         }
         .inObjectScope(.graph)
+        .initCompleted { resolver, router in
+            router.viewController = resolver.resolve(OnboardingViewController.self)
+        }
         
     }
 }

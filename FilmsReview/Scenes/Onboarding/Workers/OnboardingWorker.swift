@@ -8,9 +8,11 @@
 import Foundation
 
 protocol OnboardingWorkerProtocol {
-    
+    func markOnboardingAsPassed()
 }
 
 final class OnboardingWorker: OnboardingWorkerProtocol {
-    
+    func markOnboardingAsPassed() {
+        AppSettings.isOnboardingShown = true
+    }
 }

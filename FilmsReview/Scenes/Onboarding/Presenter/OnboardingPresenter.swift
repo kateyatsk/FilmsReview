@@ -9,7 +9,8 @@ import Foundation
 import UIKit
 
 protocol OnboardingPresenterProtocol: PresenterProtocol {
- 
+    func presentSlideChanged(index: Int, isLast: Bool)
+    func presentFinish() 
 }
 
 final class OnboardingPresenter: OnboardingPresenterProtocol {
@@ -19,4 +20,12 @@ final class OnboardingPresenter: OnboardingPresenterProtocol {
         self.viewController = viewController
     }
     
+    func presentSlideChanged(index: Int, isLast: Bool) {
+        (viewController as? OnboardingViewControllerProtocol)?.updatePageControl(currentPage: index)
+        (viewController as? OnboardingViewControllerProtocol)?.toggleSkipButton(hidden: isLast)
+    }
+    
+    func presentFinish() {
+        (viewController as? OnboardingViewControllerProtocol)?.navigateToMainApp()
+    }
 }

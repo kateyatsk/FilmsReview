@@ -8,20 +8,8 @@
 import Foundation
 
 protocol OnboardingInteractorProtocol: InteractorProtocol {
-    func handleNext(step: OnboardingStep) -> OnboardingOutput
-    func handleSkip() -> OnboardingOutput
-}
-
-enum OnboardingStep {
-    case first
-    case second
-    case third
-}
-
-enum OnboardingOutput {
-    case goToSecond
-    case goToThird
-    case finish
+    func didScrollToSlide(at index: Int)
+    func skipTapped()
 }
 
 final class OnboardingInteractor: OnboardingInteractorProtocol {
@@ -33,19 +21,14 @@ final class OnboardingInteractor: OnboardingInteractorProtocol {
         self.worker = worker
     }
     
-    func handleNext(step: OnboardingStep) -> OnboardingOutput {
-        switch step {
-        case .first:
-                .goToSecond
-        case .second:
-                .goToThird
-        case .third:
-                .finish
-        }
+    func didScrollToSlide(at index: Int) {
+        let isLast = index == Onboarding.slides.count - 1
+        (presenter as? OnboardingPresenterProtocol)?.presentSlideChanged(index: index, isLast: isLast)
     }
-    
-    func handleSkip() -> OnboardingOutput {
-        .finish
+
+    func skipTapped() {
+        worker.markOnboardingAsPassed()
+        (presenter as? OnboardingPresenterProtocol)?.presentFinish()
     }
     
 }
