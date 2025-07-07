@@ -49,6 +49,7 @@ class OnboardingViewController: UIViewController {
     private let skipButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Skip", for: .normal)
+        button.titleLabel?.font = .montserrat(.medium, size: 16)
         button.setTitleColor(.titlePrimary, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button

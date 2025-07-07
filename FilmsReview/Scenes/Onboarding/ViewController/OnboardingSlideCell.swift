@@ -55,11 +55,11 @@ final class OnboardingSlideCell: UICollectionViewCell {
     func configure(imageName: String, title: String, description: String, isLast: Bool, action: @escaping () -> Void) {
         imageView.image = UIImage(named: imageName)
         titleLabel.text = title
-        titleLabel.font = .boldSystemFont(ofSize: 24)
+        titleLabel.font = .montserrat(.extraBold, size: 24)
         titleLabel.textAlignment = .left
         titleLabel.textColor = .titlePrimary
         descriptionLabel.text = description
-        descriptionLabel.font = .systemFont(ofSize: 16)
+        descriptionLabel.font = .montserrat(.regular, size: 16)
         descriptionLabel.textColor = .bodyText
         descriptionLabel.textAlignment = .left
         descriptionLabel.numberOfLines = 0
@@ -72,13 +72,13 @@ final class OnboardingSlideCell: UICollectionViewCell {
         
         if isLast {
             actionButton.setTitle("Get Started", for: .normal)
-            actionButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
+            actionButton.titleLabel?.font = .montserrat(.medium, size: 16)
             actionButton.widthAnchor.constraint(equalToConstant: 160).isActive = true
             actionButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
             actionButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
         } else {
             actionButton.setTitle("→", for: .normal)
-            actionButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
+            actionButton.titleLabel?.font = .montserrat(.regular, size: 38)
             actionButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
             actionButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
             actionButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24).isActive = true
