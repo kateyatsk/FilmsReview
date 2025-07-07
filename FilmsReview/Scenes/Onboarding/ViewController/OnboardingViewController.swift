@@ -48,8 +48,8 @@ class OnboardingViewController: UIViewController {
     
     private let skipButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Skip", for: .normal)
-        button.titleLabel?.font = .montserrat(.medium, size: 16)
+        button.setTitle(OnboardingConstants.ViewController.skipButtonTitle, for: .normal)
+        button.titleLabel?.font = .montserrat(.medium, size: OnboardingConstants.ViewController.skipButtonFontSize)
         button.setTitleColor(.titlePrimary, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -81,17 +81,17 @@ class OnboardingViewController: UIViewController {
                 
                 pageControl.bottomAnchor.constraint(
                     equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                    constant: -30
+                    constant: -OnboardingConstants.ViewController.pageControlBottom
                 ),
                 pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                 
                 skipButton.trailingAnchor.constraint(
                     equalTo: view.trailingAnchor,
-                    constant: -20
+                    constant: -OnboardingConstants.ViewController.skipButtonTrailing
                 ),
                 skipButton.topAnchor.constraint(
                     equalTo: view.safeAreaLayoutGuide.topAnchor,
-                    constant: 20
+                    constant: OnboardingConstants.ViewController.skipButtonTop
                 )
             ]
         )
