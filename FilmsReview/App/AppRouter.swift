@@ -9,11 +9,17 @@ import UIKit
 
 final class AppRouter {
     static func startApp(window: UIWindow) {
+        let container = DependencyContainer.shared.container
+        
         if !AppSettings.isOnboardingShown {
-            let onboardingVC = DependencyContainer.shared.container.resolve(OnboardingViewController.self)!
+            guard let onboardingVC = container.resolve(OnboardingViewController.self) else {
+                fatalError("DI Error: OnboardingViewController not registered")
+            }
             window.rootViewController = onboardingVC
         } else {
-            let movieListVC = DependencyContainer.shared.container.resolve(MovieListViewController.self)!
+            guard let movieListVC = container.resolve(MovieListViewController.self) else {
+                fatalError("DI Error: MovieListViewController not resolved")
+            }
             window.rootViewController = UINavigationController(rootViewController: movieListVC)
         }
         window.makeKeyAndVisible()

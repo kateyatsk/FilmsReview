@@ -9,15 +9,60 @@ import UIKit
 
 final class OnboardingSlideCell: UICollectionViewCell {
     
-    private let imageView = UIImageView()
-    private let titleLabel = UILabel()
-    private let descriptionLabel = UILabel()
-    private let actionButton = UIButton(type: .system)
+    private lazy var imageView: UIImageView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        return $0
+    }(UIImageView())
+    
+    private lazy var titleLabel: UILabel = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.font = .montserrat(.extraBold, size: OnboardingConstants.SlideCell.titleFontSize)
+        $0.textAlignment = .left
+        $0.textColor = .titlePrimary
+        return $0
+    }(UILabel())
+    
+    private lazy var descriptionLabel: UILabel = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.font = .montserrat(.regular, size: OnboardingConstants.SlideCell.descriptionFontSize)
+        $0.textColor = .bodyText
+        $0.textAlignment = .left
+        $0.numberOfLines = 0
+        return $0
+    }(UILabel())
+    
+    private lazy var nextButton: UIButton = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.tintColor = .white
+        $0.backgroundColor = .titlePrimary
+        $0.layer.cornerRadius = OnboardingConstants.SlideCell.nextButtonCornerRadius
+        $0.setImage(UIImage(systemName: "arrow.right"), for: .normal)
+        $0.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        return $0
+    }(UIButton(type: .system))
+    
+    private lazy var startButton: UIButton = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.tintColor = .white
+        $0.backgroundColor = .buttonPrimary
+        $0.layer.cornerRadius = OnboardingConstants.SlideCell.startButtonCornerRadius
+        $0.setTitle(OnboardingConstants.SlideCell.startButtonTitle, for: .normal)
+        $0.titleLabel?.font = .montserrat(.medium, size: OnboardingConstants.SlideCell.startButtonFontSize)
+        $0.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        return $0
+    }(UIButton(type: .system))
     
     private var actionHandler: (() -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        contentView.addSubviews(
+            imageView,
+            titleLabel,
+            descriptionLabel,
+            nextButton,
+            startButton
+        )
         setupViews()
     }
     
@@ -26,10 +71,6 @@ final class OnboardingSlideCell: UICollectionViewCell {
     }
     
     private func setupViews() {
-        [imageView, titleLabel, descriptionLabel, actionButton].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            contentView.addSubview($0)
-        }
         
         NSLayoutConstraint.activate(
             [
@@ -61,49 +102,48 @@ final class OnboardingSlideCell: UICollectionViewCell {
                 descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
                 descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
                 
-                actionButton.topAnchor.constraint(
+                nextButton.topAnchor.constraint(
                     equalTo: descriptionLabel.bottomAnchor,
                     constant: OnboardingConstants.SlideCell.buttonTopPadding
-                )
+                ),
+                nextButton.trailingAnchor.constraint(
+                    equalTo: contentView.trailingAnchor,
+                    constant: -Spacing.large
+                ),
+                nextButton.widthAnchor.constraint(
+                    equalToConstant: OnboardingConstants.SlideCell.nextButtonSize
+                ),
+                nextButton.heightAnchor.constraint(
+                    equalToConstant: OnboardingConstants.SlideCell.nextButtonSize
+                ),
+                
+                startButton.widthAnchor.constraint(
+                    equalToConstant: OnboardingConstants.SlideCell.startButtonWidth
+                ),
+                startButton.heightAnchor.constraint(
+                    equalToConstant: OnboardingConstants.SlideCell.startButtonHeight
+                ),
+                startButton.topAnchor.constraint(
+                    equalTo: descriptionLabel.bottomAnchor,
+                    constant: OnboardingConstants.SlideCell.buttonTopPadding
+                ),
+                startButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
                 
             ]
         )
         
-        actionButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
     
     func configure(imageName: String, title: String, description: String, isLast: Bool, action: @escaping () -> Void) {
         imageView.image = UIImage(named: imageName)
         titleLabel.text = title
-        titleLabel.font = .montserrat(.extraBold, size: OnboardingConstants.SlideCell.titleFontSize)
-        titleLabel.textAlignment = .left
-        titleLabel.textColor = .titlePrimary
         descriptionLabel.text = description
-        descriptionLabel.font = .montserrat(.regular, size: OnboardingConstants.SlideCell.descriptionFontSize)
-        descriptionLabel.textColor = .bodyText
-        descriptionLabel.textAlignment = .left
-        descriptionLabel.numberOfLines = 0
         
         actionHandler = action
         
-        actionButton.tintColor = .white
-        actionButton.layer.cornerRadius = isLast ? OnboardingConstants.SlideCell.startButtonCornerRadius : OnboardingConstants.SlideCell.nextButtonCornerRadius
-        actionButton.backgroundColor = isLast ? .buttonPrimary : .titlePrimary
+        nextButton.isHidden = isLast
+        startButton.isHidden = !isLast
         
-        if isLast {
-            actionButton.setTitle(OnboardingConstants.SlideCell.startButtonTitle, for: .normal)
-            actionButton.titleLabel?.font = .montserrat(.medium, size: OnboardingConstants.SlideCell.startButtonFontSize)
-            actionButton.widthAnchor.constraint(equalToConstant:  OnboardingConstants.SlideCell.startButtonWidth).isActive = true
-            actionButton.heightAnchor.constraint(equalToConstant:  OnboardingConstants.SlideCell.startButtonHeight).isActive = true
-            actionButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
-        } else {
-            let arrowImage = UIImage(systemName: "arrow.right")
-            actionButton.setImage(arrowImage, for: .normal)
-            actionButton.titleLabel?.font = .montserrat(.regular, size:  OnboardingConstants.SlideCell.nextButtonFontSize)
-            actionButton.widthAnchor.constraint(equalToConstant: OnboardingConstants.SlideCell.nextButtonSize).isActive = true
-            actionButton.heightAnchor.constraint(equalToConstant:  OnboardingConstants.SlideCell.nextButtonSize).isActive = true
-            actionButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24).isActive = true
-        }
     }
     
     @objc private func buttonTapped() {
