@@ -9,7 +9,10 @@ import UIKit
 
 extension UIFont {
     static func montserrat(_ weight: MontserratWeight, size: CGFloat) -> UIFont {
-        return UIFont(name: weight.rawValue, size: size)!
+        guard let font = UIFont(name: weight.rawValue, size: size) else {
+            return UIFont.systemFont(ofSize: size)
+        }
+        return font
     }
 }
 
@@ -19,4 +22,12 @@ enum MontserratWeight: String {
     case semiBold = "Montserrat-SemiBold"
     case bold = "Montserrat-Bold"
     case extraBold = "Montserrat-ExtraBold"
+}
+
+enum FontSize {
+    static let caption: CGFloat = 12
+    static let body: CGFloat = 16
+    static let subtitle: CGFloat = 18
+    static let title: CGFloat = 24
+    static let largeTitle: CGFloat = 32
 }
