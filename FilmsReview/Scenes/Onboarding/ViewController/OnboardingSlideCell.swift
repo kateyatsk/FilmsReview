@@ -16,7 +16,7 @@ final class OnboardingSlideCell: UICollectionViewCell {
     
     private lazy var titleLabel: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.font = .montserrat(.extraBold, size: OnboardingConstants.SlideCell.titleFontSize)
+        $0.font = .montserrat(.extraBold, size: FontSize.title)
         $0.textAlignment = .left
         $0.textColor = .titlePrimary
         return $0
@@ -24,7 +24,7 @@ final class OnboardingSlideCell: UICollectionViewCell {
     
     private lazy var descriptionLabel: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.font = .montserrat(.regular, size: OnboardingConstants.SlideCell.descriptionFontSize)
+        $0.font = .montserrat(.regular, size: FontSize.body)
         $0.textColor = .bodyText
         $0.textAlignment = .left
         $0.numberOfLines = 0
@@ -35,7 +35,7 @@ final class OnboardingSlideCell: UICollectionViewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.tintColor = .white
         $0.backgroundColor = .titlePrimary
-        $0.layer.cornerRadius = OnboardingConstants.SlideCell.nextButtonCornerRadius
+        $0.layer.cornerRadius = CornerRadius.xl3
         $0.setImage(UIImage(systemName: "arrow.right"), for: .normal)
         $0.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         return $0
@@ -45,9 +45,9 @@ final class OnboardingSlideCell: UICollectionViewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.tintColor = .white
         $0.backgroundColor = .buttonPrimary
-        $0.layer.cornerRadius = OnboardingConstants.SlideCell.startButtonCornerRadius
-        $0.setTitle(OnboardingConstants.SlideCell.startButtonTitle, for: .normal)
-        $0.titleLabel?.font = .montserrat(.medium, size: OnboardingConstants.SlideCell.startButtonFontSize)
+        $0.layer.cornerRadius = CornerRadius.xl
+        $0.setTitle("Get Started", for: .normal)
+        $0.titleLabel?.font = .montserrat(.medium, size: FontSize.body)
         $0.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         return $0
     }(UIButton(type: .system))
@@ -76,56 +76,55 @@ final class OnboardingSlideCell: UICollectionViewCell {
             [
                 imageView.topAnchor.constraint(
                     equalTo: contentView.safeAreaLayoutGuide.topAnchor,
-                    constant: OnboardingConstants.SlideCell.imageTopPadding
-                ),
+                    constant:  Spacing.xl5                ),
                 imageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-                imageView.heightAnchor.constraint(equalToConstant: OnboardingConstants.SlideCell.imageSize),
-                imageView.widthAnchor.constraint(equalToConstant: OnboardingConstants.SlideCell.imageSize),
+                imageView.heightAnchor.constraint(equalToConstant:  Size.xl6.width),
+                imageView.widthAnchor.constraint(equalToConstant: Size.xl6.height),
                 
                 titleLabel.topAnchor.constraint(
                     equalTo: imageView.bottomAnchor,
-                    constant: OnboardingConstants.SlideCell.titleTopPadding
+                    constant: Spacing.xs
                 ),
                 titleLabel.leadingAnchor.constraint(
                     equalTo: contentView.leadingAnchor,
-                    constant: OnboardingConstants.SlideCell.sidePadding
+                    constant: Spacing.xs
                 ),
                 titleLabel.trailingAnchor.constraint(
                     equalTo: contentView.trailingAnchor,
-                    constant: -OnboardingConstants.SlideCell.sidePadding
+                    constant: -Spacing.xs
                 ),
                 
                 descriptionLabel.topAnchor.constraint(
                     equalTo: titleLabel.bottomAnchor,
-                    constant: OnboardingConstants.SlideCell.descriptionTopPadding
+                    constant: Spacing.xs3
                 ),
                 descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
                 descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
                 
                 nextButton.topAnchor.constraint(
                     equalTo: descriptionLabel.bottomAnchor,
-                    constant: OnboardingConstants.SlideCell.buttonTopPadding
+                    constant: Spacing.xl5
                 ),
                 nextButton.trailingAnchor.constraint(
                     equalTo: contentView.trailingAnchor,
-                    constant: -Spacing.large
+                    constant: -Spacing.xs
                 ),
                 nextButton.widthAnchor.constraint(
-                    equalToConstant: OnboardingConstants.SlideCell.nextButtonSize
+                    equalToConstant: Size.xl3.width
                 ),
                 nextButton.heightAnchor.constraint(
-                    equalToConstant: OnboardingConstants.SlideCell.nextButtonSize
+                    equalToConstant: Size.xl3.height
                 ),
                 
                 startButton.widthAnchor.constraint(
-                    equalToConstant: OnboardingConstants.SlideCell.startButtonWidth
+                    equalToConstant: Size.xl5.width
                 ),
                 startButton.heightAnchor.constraint(
-                    equalToConstant: OnboardingConstants.SlideCell.startButtonHeight
+                    equalToConstant: Size.xl.height
                 ),
                 startButton.topAnchor.constraint(
                     equalTo: descriptionLabel.bottomAnchor,
-                    constant: OnboardingConstants.SlideCell.buttonTopPadding
+                    constant: Spacing.xl5
                 ),
                 startButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
                 
