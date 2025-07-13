@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 protocol MovieListVCProtocol: ViewControllerProtocol {
     func requestDataReload()
@@ -61,7 +62,9 @@ final class MovieListViewController: UIViewController, MovieListVCProtocol {
     }
     
     func updateMoviesTable() {
+        try? Auth.auth().signOut()
         print("Table updated")
+        AppRouter.updateRootViewController()
     }
 }
 

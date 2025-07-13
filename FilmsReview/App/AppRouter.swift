@@ -6,22 +6,36 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 final class AppRouter {
+    static var window: UIWindow?
+    
     static func startApp(window: UIWindow) {
+        self.window = window
+        updateRootViewController()
+        window.makeKeyAndVisible()
+    }
+    
+    static func updateRootViewController() {
         let container = DependencyContainer.shared.container
         
         if !AppSettings.isOnboardingShown {
             guard let onboardingVC = container.resolve(OnboardingViewController.self) else {
                 fatalError("DI Error: OnboardingViewController not registered")
             }
-            window.rootViewController = onboardingVC
+            window?.rootViewController = onboardingVC
+        } else if Auth.auth().currentUser == nil {
+            guard let authVC = container.resolve(AuthenticationViewController.self) else {
+                fatalError("DI Error: AuthViewController not resolved")
+            }
+            window?.rootViewController = UINavigationController(rootViewController: authVC)
         } else {
             guard let movieListVC = container.resolve(MovieListViewController.self) else {
                 fatalError("DI Error: MovieListViewController not resolved")
             }
-            window.rootViewController = UINavigationController(rootViewController: movieListVC)
+            window?.rootViewController = UINavigationController(rootViewController: movieListVC)
         }
-        window.makeKeyAndVisible()
     }
+    
 }
