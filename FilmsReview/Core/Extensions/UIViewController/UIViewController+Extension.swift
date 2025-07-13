@@ -5,7 +5,7 @@
 //  Created by Екатерина Яцкевич on 14.07.25.
 //
 
-import Foundation
+import UIKit
 
 extension UIViewController {
     func showErrorAlert(_ message: String, title: String = "Error") {
