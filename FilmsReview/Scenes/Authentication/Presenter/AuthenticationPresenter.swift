@@ -30,4 +30,5 @@ final class AuthenticationPresenter: AuthenticationPresenterProtocol {
     func didFail(error: Error) {
         viewController?.showErrorAlert(error.localizedDescription)
     }
+    
 }

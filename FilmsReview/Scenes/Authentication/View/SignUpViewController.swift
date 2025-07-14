@@ -157,5 +157,4 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
     @objc private func loginTapped() {
         (router as? AuthenticationRouterProtocol)?.navigateToLogin()
     }
-    
 }

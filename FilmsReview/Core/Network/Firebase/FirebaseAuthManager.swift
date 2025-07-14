@@ -32,15 +32,52 @@ final class FirebaseAuthManager {
         }
     }
     
-    func signOut() {
+    func signOut(completion: @escaping (Error?) -> Void) {
         do {
             try Auth.auth().signOut()
+            completion(nil)
         } catch {
-            print("Sign out error: \(error.localizedDescription)")
+            completion(error)
         }
     }
     
     func isUserLoggedIn() -> Bool {
         return Auth.auth().currentUser != nil
+    }
+    
+    func isEmailVerified() -> Bool {
+        return Auth.auth().currentUser?.isEmailVerified ?? false
+    }
+    
+    func sendVerificationEmail(completion: @escaping (Error?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(NSError(domain: "Auth", code: -1,
+                               userInfo: [NSLocalizedDescriptionKey: "No user logged in"]))
+            return
+        }
+        user.sendEmailVerification(completion: completion)
+    }
+    
+    func reloadUser(completion: @escaping (Error?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(NSError(domain: "Auth", code: -1,
+                               userInfo: [NSLocalizedDescriptionKey: "No user logged in"]))
+            return
+        }
+        user.reload(completion: completion)
+    }
+    
+    func deleteUser(completion: @escaping (Error?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(NSError(
+                domain: "Auth",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "No logged-in user"]
+            ))
+            return
+        }
+        user.delete { error in
+            completion(error)
+        }
     }
 }

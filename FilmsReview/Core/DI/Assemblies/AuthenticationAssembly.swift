@@ -84,5 +84,16 @@ class AuthenticationAssembly: Assembly {
         }
         .inObjectScope(.graph)
         
+        container.register(EmailVerificationViewController.self) { resolver in
+            let vc = EmailVerificationViewController()
+            guard
+                let interactor = resolver.resolve(AuthenticationInteractor.self)
+            else {
+                fatalError("DI Error: AuthenticationInteractor не зарегистрирован")
+            }
+            vc.interactor = interactor
+            return vc
+        }
+        .inObjectScope(.graph)
     }
 }
