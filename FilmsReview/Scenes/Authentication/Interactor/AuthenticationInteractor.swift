@@ -16,13 +16,17 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
     
     func resendVerificationEmail(completion: @escaping (Result<Void, Error>) -> Void)
     func checkEmailVerified(completion: @escaping (Result<Bool, Error>) -> Void)
-
+    func startEmailVerificationMonitoring()
+    func stopEmailVerificationMonitoring()
+    
     func deleteAccount(completion: @escaping (Error?) -> Void)
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
     var presenter: (any PresenterProtocol)?
     var worker: AuthenticationWorker
+    
+    private var timer: Timer?
     
     init(presenter: AuthenticationPresenter? = nil, worker: AuthenticationWorker) {
         self.presenter = presenter
@@ -67,6 +71,22 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
         }
     }
     
+    func startEmailVerificationMonitoring() {
+        guard timer == nil else { return }
+        timer = Timer.scheduledTimer(
+            timeInterval: 3,
+            target: self,
+            selector: #selector(pollEmailVerificationStatus),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+    
+    func stopEmailVerificationMonitoring() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
     func checkEmailVerified(completion: @escaping (Result<Bool, Error>) -> Void) {
         worker.reloadUser { error in
             if let err = error {
@@ -78,7 +98,22 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
         }
     }
     
+    @objc private func pollEmailVerificationStatus() {
+        checkEmailVerified { [weak self] result in
+            switch result {
+            case .success(true):
+                self?.stopEmailVerificationMonitoring()
+                (self?.presenter as? AuthenticationPresenterProtocol)?.didConfirmEmail()
+            case .success(false):
+                break
+            case .failure(let error):
+                (self?.presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+            }
+        }
+    }
+    
     func signOut(completion: @escaping (Error?) -> Void) {
+        AppSettings.isAuthorized = false
         worker.signOut(completion: completion)
     }
     
@@ -87,9 +122,10 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
             if let error = error {
                 completion(error)
             } else {
+                AppSettings.isAuthorized = false
                 self?.worker.signOut(completion: completion)
             }
         }
     }
-
+    
 }

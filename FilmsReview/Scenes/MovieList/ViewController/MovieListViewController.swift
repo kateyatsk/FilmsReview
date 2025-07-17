@@ -64,6 +64,7 @@ final class MovieListViewController: UIViewController, MovieListVCProtocol {
     func updateMoviesTable() {
         try? Auth.auth().signOut()
         print("Table updated")
+        AppSettings.isAuthorized = false
         AppRouter.updateRootViewController()
     }
 }

@@ -9,6 +9,20 @@
 
 import UIKit
 
+fileprivate enum Constants {
+    enum Text {
+        static let title = "Explore the world of films!"
+        static let description = "Sign in or create account"
+        static let logIn = "LOG IN"
+        static let signUp = "Create a new account"
+    }
+    
+    enum Layout {
+        static let unlimitedNumberOfLines: Int = 0
+    }
+}
+
+
 protocol AuthenticationVCProtocol: ViewControllerProtocol {
     
 }
@@ -24,7 +38,7 @@ final class AuthenticationViewController: UIViewController, AuthenticationVCProt
     }(UIImageView())
     
     private lazy var titleLabel: UILabel = {
-        $0.text = "Explore the world of films!"
+        $0.text = Constants.Text.title
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .montserrat(.extraBold, size: FontSize.title)
         $0.textAlignment = .center
@@ -34,24 +48,24 @@ final class AuthenticationViewController: UIViewController, AuthenticationVCProt
     }(UILabel())
     
     private lazy var descriptionLabel: UILabel = {
-        $0.text = "Sign in or create account"
+        $0.text = Constants.Text.description
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .montserrat(.semiBold, size: FontSize.body)
         $0.textColor = .bodyText
         $0.textAlignment = .center
-        $0.numberOfLines = 0
+        $0.numberOfLines = Constants.Layout.unlimitedNumberOfLines
         return $0
     }(UILabel())
     
 
     private lazy var loginButton: UIButton = .styled(
-        title: "LOG IN",
+        title: Constants.Text.logIn,
         style: .filled,
         target: self,
         action: #selector(loginTapped)
     )
     private lazy var signupButton: UIButton = .styled(
-        title: "Create a new account",
+        title: Constants.Text.signUp,
         style: .outlined,
         target: self,
         action: #selector(signupTapped)
@@ -68,9 +82,7 @@ final class AuthenticationViewController: UIViewController, AuthenticationVCProt
             loginButton,
             signupButton
         )
-       
         setupHierarchy()
-       
     }
     
     func setupHierarchy() {

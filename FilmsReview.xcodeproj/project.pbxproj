@@ -11,6 +11,7 @@
 		8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0DE2E0ED19300080537 /* FirebaseAuth */; };
 		8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0E02E0ED19300080537 /* FirebaseCore */; };
 		8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCC5BEB2E0C821600F092EF /* Swinject */; };
+		B1C7748F2E28CEAA009AB3C9 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B1C7748E2E28CEAA009AB3C9 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,7 @@
 				8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */,
 				8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */,
 				8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */,
+				B1C7748F2E28CEAA009AB3C9 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +142,7 @@
 				8BCC5BEB2E0C821600F092EF /* Swinject */,
 				8B8CC0DE2E0ED19300080537 /* FirebaseAuth */,
 				8B8CC0E02E0ED19300080537 /* FirebaseCore */,
+				B1C7748E2E28CEAA009AB3C9 /* Lottie */,
 			);
 			productName = FilmsReview;
 			productReference = B13A80D02E09935600131ADC /* FilmsReview.app */;
@@ -226,6 +229,7 @@
 			packageReferences = (
 				8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */,
 				8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B1C7748D2E28CEAA009AB3C9 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B13A80D12E09935600131ADC /* Products */;
@@ -316,6 +320,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -343,6 +348,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -607,6 +613,14 @@
 				minimumVersion = 2.9.1;
 			};
 		};
+		B1C7748D2E28CEAA009AB3C9 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -624,6 +638,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */;
 			productName = Swinject;
+		};
+		B1C7748E2E28CEAA009AB3C9 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B1C7748D2E28CEAA009AB3C9 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

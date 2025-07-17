@@ -13,6 +13,12 @@ enum ButtonStyle {
     case outlined
 }
 
+enum ShadowStyle {
+    static let buttonOpacity: Float = 0.2
+    static let buttonOffset: CGSize = CGSize(width: 0, height: Size.xs5.height)
+    static let buttonRadius: CGFloat = CornerRadius.xs2
+}
+
 extension UIButton {
     static func styled(
         title: String,
@@ -31,12 +37,12 @@ extension UIButton {
         case .filled:
             button.backgroundColor = .buttonPrimary
             button.setTitleColor(.white, for: .normal)
-            button.layer.shadowOpacity = 0.2
-            button.layer.shadowOffset = CGSize(width: 0, height: 6)
-            button.layer.shadowRadius = 4
+            button.layer.shadowOpacity = ShadowStyle.buttonOpacity
+            button.layer.shadowOffset = ShadowStyle.buttonOffset
+            button.layer.shadowRadius = ShadowStyle.buttonRadius
             button.layer.masksToBounds = false
         case .outlined:
-            button.layer.borderWidth = 1
+            button.layer.borderWidth = Spacing.xs6
             button.layer.borderColor = UIColor.buttonPrimary.cgColor
             button.setTitleColor(.buttonPrimary, for: .normal)
         }

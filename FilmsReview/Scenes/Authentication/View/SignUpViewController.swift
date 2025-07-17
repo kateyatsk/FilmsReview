@@ -7,8 +7,28 @@
 
 import UIKit
 
+fileprivate enum Constants {
+    enum Text {
+        static let signUpTitle = "Sign Up"
+        static let signUp = "Create a new account"
+        
+        static let enterEmailLabel = "Enter your email address:"
+        static let createPasswordLabel = "Create a password:"
+        static let confirmPasswordLabel = "Confirm your password:"
+        
+        static let haveAccountMessage = "Do you already have an account?"
+        static let passwordsDoNotMatch = "Passwords do not match."
+        static let allFieldsRequired = "All fields are required."
+        
+        static let emailPlaceholder = "Email"
+        static let passwordPlaceholder = "Password"
+        
+    }
+}
+
+
 protocol SignUpVCProtocol: ViewControllerProtocol {
-    
+    func showEmailVerificationScreen()
 }
 
 final class SignUpViewController: UIViewController, SignUpVCProtocol {
@@ -17,7 +37,7 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Sign Up"
+        label.text = Constants.Text.signUpTitle
         label.font = .montserrat(.extraBold, size: FontSize.title)
         label.textAlignment = .center
         label.textColor = .buttonPrimary
@@ -25,17 +45,17 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
         return label
     }()
     
-    private lazy var emailLabel = makeLabel("Введите Ваш email:")
-    private lazy var emailField = makeTextField(placeholder: "Email")
+    private lazy var emailLabel = makeLabel(Constants.Text.enterEmailLabel)
+    private lazy var emailField = makeTextField(placeholder: Constants.Text.emailPlaceholder)
     
-    private lazy var passwordLabel = makeLabel("Придумайте пароль:")
-    private lazy var passwordField = makeSecureField(placeholder: "Password")
+    private lazy var passwordLabel = makeLabel(Constants.Text.createPasswordLabel)
+    private lazy var passwordField = makeSecureField(placeholder: Constants.Text.passwordPlaceholder)
     
-    private lazy var confirmPasswordLabel = makeLabel("Повторите пароль:")
-    private lazy var confirmPasswordField = makeSecureField(placeholder: "Password")
+    private lazy var confirmPasswordLabel = makeLabel(Constants.Text.confirmPasswordLabel)
+    private lazy var confirmPasswordField = makeSecureField(placeholder: Constants.Text.passwordPlaceholder)
     
     private lazy var createAccountButton: UIButton = .styled(
-        title: "Create a new account",
+        title: Constants.Text.signUp,
         style: .filled,
         target: self,
         action: #selector(createAccount)
@@ -43,7 +63,7 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
     
     private lazy var signInButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Do you already have an account?", for: .normal)
+        button.setTitle(Constants.Text.haveAccountMessage, for: .normal)
         button.setTitleColor(.buttonPrimary, for: .normal)
         button.titleLabel?.font = .montserrat(.semiBold, size: FontSize.body)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -106,6 +126,10 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
         ])
     }
     
+    func showEmailVerificationScreen() {
+        (router as? AuthenticationRouterProtocol)?.routeToEmailVerification()
+    }
+    
     private func makeLabel(_ text: String) -> UILabel {
         let label = UILabel()
         label.text = text
@@ -130,27 +154,31 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
     
     private func configureTextField(_ textField: UITextField, placeholder: String) {
         textField.setPlaceholder(placeholder, color: .titlePrimary)
-        textField.layer.borderWidth = 1
+        textField.layer.borderWidth = Spacing.xs6
         textField.layer.cornerRadius = CornerRadius.xl
         textField.layer.borderColor = UIColor.titlePrimary.cgColor
-        textField.leftView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.s, height: 0)))
+        textField.leftView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: 0)))
         textField.leftViewMode = .always
+        textField.rightView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: 0)))
+        textField.rightViewMode = .always
         textField.translatesAutoresizingMaskIntoConstraints = false
     }
     
     @objc func createAccount() {
-        guard let email = emailField.text, !email.isEmpty,
-              let password = passwordField.text, !password.isEmpty,
-              let confirmPassword = confirmPasswordField.text, !confirmPassword.isEmpty else {
-            showErrorAlert("All fields are required.")
+        let email = emailField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let password = passwordField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let confirm = confirmPasswordField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        guard !email.isEmpty, !password.isEmpty, !confirm.isEmpty else {
+            showErrorAlert(Constants.Text.allFieldsRequired)
             return
         }
         
-        if password != confirmPassword {
-            showErrorAlert("Passwords do not match.")
+        if password != confirm {
+            showErrorAlert(Constants.Text.passwordsDoNotMatch)
             return
         }
-
+    
         (interactor as? AuthenticationInteractorProtocol)?.register(email: email, password: password)
     }
     

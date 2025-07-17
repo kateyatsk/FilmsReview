@@ -19,7 +19,6 @@ final class AppRouter {
     static func updateRootViewController() {
         guard let window = window else { return }
         let container = DependencyContainer.shared.container
-        let authManager = FirebaseAuthManager.shared
         
         if !AppSettings.isOnboardingShown {
             guard let onboardingVC = container.resolve(OnboardingViewController.self) else {
@@ -28,16 +27,8 @@ final class AppRouter {
             window.rootViewController = onboardingVC
             return
         }
-        
-        if authManager.isUserLoggedIn(), !authManager.isEmailVerified() {
-            guard let verificationVC = container.resolve(EmailVerificationViewController.self) else {
-                fatalError("DI Error: EmailVerificationViewController not resolved")
-            }
-            window.rootViewController = UINavigationController(rootViewController: verificationVC)
-            return
-        }
-        
-        if !authManager.isUserLoggedIn() {
+
+        if !AppSettings.isAuthorized {
             guard let authVC = container.resolve(AuthenticationViewController.self) else {
                 fatalError("DI Error: AuthViewController not resolved")
             }

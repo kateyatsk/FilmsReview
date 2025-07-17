@@ -8,8 +8,19 @@
 import Foundation
 import UIKit
 
+fileprivate enum Constants {
+    enum Text {
+        static let signInTitle = "Sign In"
+        static let noAccountMessage = "Don't you have an account yet?"
+        static let logIn = "LOG IN"
+        static let emailPlaceholder = "Email"
+        static let passwordPlaceholder = "Password"
+        static let allFieldsRequired = "All fields are required."
+    }
+}
+
 protocol LoginVCProtocol: ViewControllerProtocol {
-    
+    func showEmailVerificationScreen()
 }
 
 final class LoginViewController: UIViewController,LoginVCProtocol {
@@ -17,7 +28,7 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
     var router: (any RouterProtocol)?
     
     private lazy var titleLabel: UILabel = {
-        $0.text = "Sign In"
+        $0.text = Constants.Text.signInTitle
         $0.font = .montserrat(.extraBold, size: FontSize.title)
         $0.textAlignment = .center
         $0.textColor = .buttonPrimary
@@ -29,14 +40,14 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
     private lazy var passwordField: UITextField = setupPasswordField()
     
     private lazy var loginButton: UIButton = .styled(
-        title: "LOG IN",
+        title: Constants.Text.logIn,
         style: .filled,
         target: self,
         action: #selector(signInTapped)
     )
     
     private lazy var signUpButton: UIButton = {
-        $0.setTitle("Don't you have an account yet?", for: .normal)
+        $0.setTitle(Constants.Text.noAccountMessage, for: .normal)
         $0.setTitleColor(.buttonPrimary, for: .normal)
         $0.titleLabel?.font = .montserrat(.semiBold, size: FontSize.body)
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -55,8 +66,18 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        view.addSubviews(titleLabel, emailField, passwordField, loginButton, signUpButton)
+        view.addSubviews(
+            titleLabel,
+            emailField,
+            passwordField,
+            loginButton,
+            signUpButton
+        )
         
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Spacing.xl5),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.xl),
@@ -84,13 +105,13 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
     
     private func setupEmailField() -> UITextField {
         let emailField = UITextField()
-        configureTextField(emailField, placeholder: "Email")
+        configureTextField(emailField, placeholder: Constants.Text.emailPlaceholder)
         return emailField
     }
     
     private func setupPasswordField() -> UITextField {
         let passwordField = UITextField()
-        configureTextField(passwordField, placeholder: "Password")
+        configureTextField(passwordField, placeholder: Constants.Text.passwordPlaceholder)
         passwordField.isSecureTextEntry = true
         
         let container = UIView(frame: CGRect(origin: .zero, size: Size.xl))
@@ -106,11 +127,17 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
     
     private func configureTextField(_ textField: UITextField, placeholder: String) {
         textField.setPlaceholder(placeholder, color: .titlePrimary)
-        textField.layer.borderWidth = 1
+        textField.layer.borderWidth = Spacing.xs6
         textField.layer.cornerRadius = CornerRadius.xl
-        textField.leftView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.s, height: 0)))
+        textField.leftView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: 0)))
         textField.leftViewMode = .always
+        textField.rightView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: 0)))
+        textField.rightViewMode = .always
         textField.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    func showEmailVerificationScreen() {
+        (router as? AuthenticationRouterProtocol)?.routeToEmailVerification()
     }
     
     @objc private func togglePasswordVisibility() {
@@ -126,7 +153,7 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
     @objc private func signInTapped() {
         guard let email = emailField.text, !email.isEmpty,
               let password = passwordField.text, !password.isEmpty else {
-            showErrorAlert("All fields are required.")
+            showErrorAlert(Constants.Text.allFieldsRequired)
             return
         }
         

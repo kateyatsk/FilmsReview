@@ -14,6 +14,8 @@ import UIKit
 protocol AuthenticationRouterProtocol: RouterProtocol {
     func navigateToLogin()
     func navigateToSignUp()
+    
+    func routeToEmailVerification()
 }
 
 final class AuthenticationRouter: AuthenticationRouterProtocol {
@@ -36,7 +38,7 @@ final class AuthenticationRouter: AuthenticationRouterProtocol {
             print("AuthenticationViewController not found in navigation stack")
         }
     }
-
+    
     func navigateToLogin() {
         guard let loginVC = DependencyContainer.shared.container.resolve(LoginViewController.self),
               let navController = viewController?.navigationController else {
@@ -48,6 +50,25 @@ final class AuthenticationRouter: AuthenticationRouterProtocol {
             navController.setViewControllers([authVC, loginVC], animated: true)
         } else {
             print("AuthenticationViewController not found in navigation stack")
+        }
+    }
+    
+    func routeToEmailVerification() {
+        guard
+            let verificationVC = DependencyContainer
+                .shared
+                .container
+                .resolve(EmailVerificationViewController.self),
+            let sourceVC = viewController
+        else {
+            fatalError("EmailVerificationViewController or source VC not found")
+        }
+        
+        if let nav = sourceVC.navigationController {
+            nav.pushViewController(verificationVC, animated: true)
+        } else {
+            verificationVC.modalPresentationStyle = .fullScreen
+            sourceVC.present(verificationVC, animated: true)
         }
     }
 }

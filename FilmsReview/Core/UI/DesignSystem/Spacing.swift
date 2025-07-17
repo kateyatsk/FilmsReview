@@ -7,6 +7,7 @@
 
 import UIKit
 public enum Spacing {
+    public static var xs6: CGFloat { 1 }
     public static var xs5: CGFloat { 4 }
     public static var xs4: CGFloat { 8 }
     public static var xs3: CGFloat { 16 }
