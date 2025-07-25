@@ -19,10 +19,34 @@ fileprivate enum Constants {
         static let haveAccountMessage = "Do you already have an account?"
         static let passwordsDoNotMatch = "Passwords do not match."
         static let allFieldsRequired = "All fields are required."
+        static let emailErrorMessage = "Please enter a valid email address."
         
         static let emailPlaceholder = "Email"
         static let passwordPlaceholder = "Password"
         
+    }
+    
+    enum Layout {
+        static let unlimitedNumberOfLines: Int = 0
+    }
+    
+    enum Size {
+        static let validationViewHeight: CGFloat = 80
+    }
+    
+    enum Opacity {
+        static let enable: CGFloat = 1.0
+        static let disable: CGFloat = 0.5
+    }
+    
+    enum ValidationMessages {
+        static let minLength = "6+ characters"
+        static let hasLowercase = "1+ lowercase"
+        static let hasUppercase = "1+ uppercase"
+        static let noWhitespaces = "No whitespaces"
+        static let hasDigit = "1+ digit"
+        static let onlyLatin = "Only Latin letters"
+        static let hasSpecialChar = "1+ special char"
     }
 }
 
@@ -46,20 +70,43 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
     }()
     
     private lazy var emailLabel = makeLabel(Constants.Text.enterEmailLabel)
-    private lazy var emailField = makeTextField(placeholder: Constants.Text.emailPlaceholder)
+    private lazy var emailField: UITextField = {
+        let field = makeTextField(placeholder: Constants.Text.emailPlaceholder)
+        field.addTarget(self, action: #selector(emailChanged(_:)), for: .editingChanged)
+        return field
+    }()
     
     private lazy var passwordLabel = makeLabel(Constants.Text.createPasswordLabel)
-    private lazy var passwordField = makeSecureField(placeholder: Constants.Text.passwordPlaceholder)
+    private lazy var passwordField: UITextField = {
+        let field = makeSecureField(placeholder: Constants.Text.passwordPlaceholder)
+        field.addTarget(self, action: #selector(passwordChanged(_:)), for: .editingChanged)
+        return field
+    }()
+    
+    private lazy var emailErrorLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .systemRed
+        label.font = .montserrat(.regular, size: FontSize.caption)
+        label.numberOfLines = Constants.Layout.unlimitedNumberOfLines
+        label.text = ""
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     private lazy var confirmPasswordLabel = makeLabel(Constants.Text.confirmPasswordLabel)
     private lazy var confirmPasswordField = makeSecureField(placeholder: Constants.Text.passwordPlaceholder)
     
-    private lazy var createAccountButton: UIButton = .styled(
-        title: Constants.Text.signUp,
-        style: .filled,
-        target: self,
-        action: #selector(createAccount)
-    )
+    private lazy var createAccountButton: UIButton = {
+        let button = UIButton.styled(
+            title: Constants.Text.signUp,
+            style: .filled,
+            target: self,
+            action: #selector(createAccount)
+        )
+        button.isEnabled = false
+        button.alpha = Constants.Opacity.disable
+        return button
+    }()
     
     private lazy var signInButton: UIButton = {
         let button = UIButton(type: .system)
@@ -71,25 +118,48 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
         return button
     }()
     
+    private lazy var validationDelegate: ValidationDelegate = {
+        let rules: [ValidationRule] = [
+            ValidationRule(message: Constants.ValidationMessages.noWhitespaces, regex: ValidationRegex.noWhitespaces.rawValue),
+            ValidationRule(message: Constants.ValidationMessages.hasDigit, regex: ValidationRegex.hasDigit.rawValue),
+            ValidationRule(message: Constants.ValidationMessages.onlyLatin, regex: ValidationRegex.onlyLatin.rawValue),
+            ValidationRule(message: Constants.ValidationMessages.minLength, regex: ValidationRegex.minLength.rawValue),
+            ValidationRule(message: Constants.ValidationMessages.hasLowercase, regex: ValidationRegex.hasLowercase.rawValue),
+            ValidationRule(message: Constants.ValidationMessages.hasUppercase, regex: ValidationRegex.hasUppercase.rawValue),
+            ValidationRule(message: Constants.ValidationMessages.hasSpecialChar, regex: ValidationRegex.hasSpecialChar.rawValue)
+        ]
+        return ValidationDelegate(rules: rules)
+    }()
+    
+    private lazy var validationView: ValidationTagContainerView = {
+        let view = ValidationTagContainerView(delegate: validationDelegate)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        hideKeyboardWhenTappedAround()
+        
         view.addSubviews(
             titleLabel,
-            emailLabel, emailField,
+            emailLabel, emailField, emailErrorLabel,
             passwordLabel, passwordField,
+            validationView,
             confirmPasswordLabel, confirmPasswordField,
             createAccountButton,
             signInButton
         )
         
         layout()
+        validationView.reloadTags()
     }
     
     private func layout() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Spacing.xl5),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Spacing.xs),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             emailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Spacing.xl5),
@@ -100,6 +170,10 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
             emailField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.xl),
             emailField.heightAnchor.constraint(equalToConstant: Size.xl2.height),
             
+            emailErrorLabel.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: Spacing.xs5),
+            emailErrorLabel.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
+            emailErrorLabel.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
+            
             passwordLabel.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: Spacing.xs),
             passwordLabel.leadingAnchor.constraint(equalTo: emailLabel.leadingAnchor),
             
@@ -108,7 +182,7 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
             passwordField.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             passwordField.heightAnchor.constraint(equalToConstant: Size.xl2.height),
             
-            confirmPasswordLabel.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: Spacing.xs),
+            confirmPasswordLabel.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: Spacing.xs2),
             confirmPasswordLabel.leadingAnchor.constraint(equalTo: emailLabel.leadingAnchor),
             
             confirmPasswordField.topAnchor.constraint(equalTo: confirmPasswordLabel.bottomAnchor, constant: Spacing.xs3),
@@ -116,7 +190,12 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
             confirmPasswordField.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             confirmPasswordField.heightAnchor.constraint(equalToConstant: Size.xl2.height),
             
-            createAccountButton.topAnchor.constraint(equalTo: confirmPasswordField.bottomAnchor, constant: Spacing.l),
+            validationView.topAnchor.constraint(equalTo: confirmPasswordField.bottomAnchor, constant: Spacing.xs3),
+            validationView.leadingAnchor.constraint(equalTo: confirmPasswordField.leadingAnchor),
+            validationView.trailingAnchor.constraint(equalTo: confirmPasswordField.trailingAnchor),
+            validationView.heightAnchor.constraint(greaterThanOrEqualToConstant: Constants.Size.validationViewHeight),
+            
+            createAccountButton.topAnchor.constraint(equalTo: validationView.bottomAnchor, constant: Spacing.l),
             createAccountButton.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
             createAccountButton.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
             createAccountButton.heightAnchor.constraint(equalToConstant: Size.xl2.height),
@@ -157,9 +236,9 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
         textField.layer.borderWidth = Spacing.xs6
         textField.layer.cornerRadius = CornerRadius.xl
         textField.layer.borderColor = UIColor.titlePrimary.cgColor
-        textField.leftView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: 0)))
+        textField.leftView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: .zero)))
         textField.leftViewMode = .always
-        textField.rightView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: 0)))
+        textField.rightView = UIView(frame: CGRect(origin: .zero, size: CGSize(width: Spacing.xs2, height: .zero)))
         textField.rightViewMode = .always
         textField.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -178,11 +257,35 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol {
             showErrorAlert(Constants.Text.passwordsDoNotMatch)
             return
         }
-    
+        
         (interactor as? AuthenticationInteractorProtocol)?.register(email: email, password: password)
     }
     
     @objc private func loginTapped() {
         (router as? AuthenticationRouterProtocol)?.navigateToLogin()
     }
+    
+    @objc private func emailChanged(_ sender: UITextField) {
+        guard let interactor = interactor as? AuthenticationInteractorProtocol else { return }
+        let email = sender.text ?? ""
+        let isValid = interactor.validateEmail(email)
+        emailField.layer.borderColor = isValid ? UIColor.titlePrimary.cgColor : UIColor.systemRed.cgColor
+        emailErrorLabel.isHidden = isValid
+        emailErrorLabel.text = isValid ? "" : Constants.Text.emailErrorMessage
+    }
+    
+    @objc private func passwordChanged(_ sender: UITextField) {
+        let text = sender.text ?? ""
+        validationDelegate.checkValidationTags(text: text) {
+            validationView.reloadTags()
+            updateCreateButtonState()
+        }
+    }
+    
+    private func updateCreateButtonState() {
+        let allValid = validationDelegate.rulesState.values.allSatisfy { $0 }
+        createAccountButton.isEnabled = allValid
+        createAccountButton.alpha = allValid ? Constants.Opacity.enable : Constants.Opacity.disable
+    }
+    
 }

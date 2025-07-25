@@ -20,6 +20,8 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
     func stopEmailVerificationMonitoring()
     
     func deleteAccount(completion: @escaping (Error?) -> Void)
+    
+    func validateEmail(_ email: String) -> Bool
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
@@ -128,4 +130,10 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
         }
     }
     
+    func validateEmail(_ email: String) -> Bool {
+        NSPredicate(format: "SELF MATCHES %@", ValidationRegex.email.rawValue)
+            .evaluate(with: email)
+    }
+    
 }
+
