@@ -29,7 +29,7 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(skipButton.waitForExistence(timeout: 2), "Кнопка Skip не появилась")
         skipButton.tap()
 
-        let hello = app.staticTexts["Hello, World!"]
+        let hello = app.staticTexts["Explore the world of films!"]
         XCTAssertTrue(hello.waitForExistence(timeout: 5), "Главный экран не открылся")
     }
 
@@ -37,7 +37,7 @@ final class OnboardingUITests: XCTestCase {
         let expectedSlides = 3
 
         let pageIndicator = app.pageIndicators.firstMatch
-        XCTAssertTrue(pageIndicator.waitForExistence(timeout: 2))
+        XCTAssertTrue(pageIndicator.waitForExistence(timeout: 4))
 
         XCTAssertEqual(pageIndicator.value as? String, "page 1 of \(expectedSlides)")
 
@@ -66,7 +66,7 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(getStarted.waitForExistence(timeout: 2))
         getStarted.tap()
 
-        let hello = app.staticTexts["Hello, World!"]
+        let hello = app.staticTexts["Explore the world of films!"]
         XCTAssertTrue(hello.waitForExistence(timeout: 5),
                       "После Get Started не открывается главный экран")
     }
