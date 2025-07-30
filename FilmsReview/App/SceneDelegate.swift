@@ -18,6 +18,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             AppSettings.isOnboardingShown = false
         }
         
+        if ProcessInfo.processInfo.environment["UITesting_SkipOnboarding"] == "1" {
+            AppSettings.isOnboardingShown = true
+        }
+        
         let window = UIWindow(windowScene: windowScene)
         AppRouter.startApp(window: window)
         self.window = window

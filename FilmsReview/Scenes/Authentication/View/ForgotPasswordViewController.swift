@@ -56,7 +56,7 @@ final class ForgotPasswordViewController: UIViewController, ForgotPasswordVCProt
         return label
     }()
     
-    private lazy var emailField: UITextField = {
+    lazy var emailField: UITextField = {
         let textField = UITextField()
         textField.setPlaceholder(Constants.Text.emailPlaceholder, color: .titlePrimary)
         textField.layer.borderWidth = Spacing.xs6
@@ -98,15 +98,15 @@ final class ForgotPasswordViewController: UIViewController, ForgotPasswordVCProt
         ])
     }
     
-    @objc private func continueTapped() {
+    @objc func continueTapped() {
         guard let email = emailField.text, !email.isEmpty else {
             showErrorAlert(Constants.Text.emailAlert)
             return
         }
-        (interactor as? AuthenticationInteractor)?.resetPassword(email: email)
+        (interactor as? AuthenticationInteractorProtocol)?.resetPassword(email: email)
     }
     
     func showCheckYourEmailScreen() {
-        (router as? AuthenticationRouter)?.navigateToCheckYourEmail(email: emailField.text ?? "")
+        (router as? AuthenticationRouterProtocol)?.navigateToCheckYourEmail(email: emailField.text ?? "")
     }
 }

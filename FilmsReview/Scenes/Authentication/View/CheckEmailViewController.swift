@@ -100,6 +100,6 @@ final class CheckEmailViewController: UIViewController, CheckEmailVCProtocol {
     }
     
     @objc func navigateToLoginScreen() {
-        (self.router as? AuthenticationRouter)?.navigateToLogin()
+        (self.router as? AuthenticationRouterProtocol)?.navigateToLogin()
     }
 }
