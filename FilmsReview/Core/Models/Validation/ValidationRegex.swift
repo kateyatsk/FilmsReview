@@ -15,7 +15,7 @@ enum ValidationRegex: String {
     case hasLowercase = ".*[a-z]+.*"
     case hasDigit = ".*\\d+.*"
     case hasSpecialChar = ".*[!@#$%^&*]+.*"
-    case noWhitespaces = "^[^\\s]*$"
+    case noWhitespaces = "^(?!\\s*$)[^\\s]+$"
     case minLength = "^.{6,}$"
 }
 
