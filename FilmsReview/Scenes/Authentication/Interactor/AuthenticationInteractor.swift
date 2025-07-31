@@ -26,11 +26,11 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
     var presenter: (any PresenterProtocol)?
-    var worker: AuthenticationWorker
+    var worker: AuthenticationWorkerProtocol
     
     private var timer: Timer?
     
-    init(presenter: AuthenticationPresenter? = nil, worker: AuthenticationWorker) {
+    init(presenter: AuthenticationPresenter? = nil, worker: AuthenticationWorkerProtocol) {
         self.presenter = presenter
         self.worker = worker
     }
