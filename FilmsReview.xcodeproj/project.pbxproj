@@ -10,6 +10,7 @@
 		8B8CC0DC2E0ED13D00080537 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B8CC0DB2E0ED13D00080537 /* GoogleService-Info.plist */; };
 		8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0DE2E0ED19300080537 /* FirebaseAuth */; };
 		8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0E02E0ED19300080537 /* FirebaseCore */; };
+		8B919F4D2E3BA9EB00C58030 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */; };
 		8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCC5BEB2E0C821600F092EF /* Swinject */; };
 /* End PBXBuildFile section */
 
@@ -74,6 +75,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */,
+				8B919F4D2E3BA9EB00C58030 /* FirebaseFirestore in Frameworks */,
 				8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */,
 				8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */,
 			);
@@ -140,6 +142,7 @@
 				8BCC5BEB2E0C821600F092EF /* Swinject */,
 				8B8CC0DE2E0ED19300080537 /* FirebaseAuth */,
 				8B8CC0E02E0ED19300080537 /* FirebaseCore */,
+				8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */,
 			);
 			productName = FilmsReview;
 			productReference = B13A80D02E09935600131ADC /* FilmsReview.app */;
@@ -619,6 +622,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 		8BCC5BEB2E0C821600F092EF /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
