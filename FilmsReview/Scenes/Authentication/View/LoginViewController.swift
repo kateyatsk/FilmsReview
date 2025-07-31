@@ -12,6 +12,7 @@ fileprivate enum Constants {
     enum Text {
         static let signInTitle = "Sign In"
         static let noAccountMessage = "Don't you have an account yet?"
+        static let forgotPasswordMessage = "Forgot password?"
         static let logIn = "LOG IN"
         static let emailPlaceholder = "Email"
         static let passwordPlaceholder = "Password"
@@ -55,6 +56,15 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
         return $0
     }(UIButton())
     
+    private lazy var forgotPasswordButton: UIButton = {
+        $0.setTitle(Constants.Text.forgotPasswordMessage, for: .normal)
+        $0.setTitleColor(.titlePrimary, for: .normal)
+        $0.titleLabel?.font = .montserrat(.semiBold, size: FontSize.body)
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.addTarget(self, action: #selector(showForgotPasswordScreen), for: .touchUpInside)
+        return $0
+    }(UIButton())
+    
     private lazy var togglePasswordButton: UIButton = {
         $0.setImage(UIImage(systemName: "eye.slash"), for: .normal)
         $0.tintColor = .darkGray
@@ -73,7 +83,8 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
             emailField,
             passwordField,
             loginButton,
-            signUpButton
+            signUpButton,
+            forgotPasswordButton
         )
         
         setupConstraints()
@@ -95,13 +106,16 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
             passwordField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.xl),
             passwordField.heightAnchor.constraint(equalToConstant: Size.xl2.height),
             
-            loginButton.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: Spacing.l),
+            loginButton.topAnchor.constraint(equalTo: forgotPasswordButton.bottomAnchor, constant: Spacing.l),
             loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Spacing.xl),
             loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Spacing.xl),
             loginButton.heightAnchor.constraint(equalToConstant: Size.xl2.height),
             
             signUpButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: Spacing.xs2),
-            signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            forgotPasswordButton.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: Spacing.xs5),
+            forgotPasswordButton.trailingAnchor.constraint(equalTo: passwordField.trailingAnchor)
         ])
     }
     
@@ -140,6 +154,10 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
     
     func showEmailVerificationScreen() {
         (router as? AuthenticationRouterProtocol)?.routeToEmailVerification()
+    }
+    
+    @objc private func showForgotPasswordScreen() {
+        (router as? AuthenticationRouterProtocol)?.navigateToForgotPassword()
     }
     
     @objc private func togglePasswordVisibility() {

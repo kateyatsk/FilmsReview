@@ -20,7 +20,7 @@ protocol AuthenticationWorkerProtocol {
     func isEmailVerified() -> Bool
     func sendVerificationEmail(completion: @escaping (Error?) -> Void)
     func reloadUser(completion: @escaping (Error?) -> Void)
-    
+    func resetPassword(email: String, completion: @escaping (Error?) -> Void)
     func deleteUser(completion: @escaping (Error?) -> Void)
 }
 
@@ -56,4 +56,11 @@ final class AuthenticationWorker: AuthenticationWorkerProtocol {
     func deleteUser(completion: @escaping (Error?) -> Void) {
         FirebaseAuthManager.shared.deleteUser(completion: completion)
     }
+    
+    func resetPassword(email: String, completion: @escaping (Error?) -> Void) {
+        FirebaseAuthManager.shared.resetPassword(email: email) { error in
+            completion(error)
+        }
+    }
+    
 }

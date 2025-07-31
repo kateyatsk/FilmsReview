@@ -14,6 +14,7 @@ protocol AuthenticationPresenterProtocol: PresenterProtocol {
     func didLogin(user: User)
     func didFail(error: Error)
     func didConfirmEmail()
+    func didResetPassword()
 }
 
 final class AuthenticationPresenter: AuthenticationPresenterProtocol {
@@ -45,6 +46,10 @@ final class AuthenticationPresenter: AuthenticationPresenterProtocol {
     func didConfirmEmail() {
         AppSettings.isAuthorized = true
         AppRouter.updateRootViewController()
+    }
+    
+    func didResetPassword() {
+        (viewController as? ForgotPasswordVCProtocol)?.showCheckYourEmailScreen()
     }
     
 }

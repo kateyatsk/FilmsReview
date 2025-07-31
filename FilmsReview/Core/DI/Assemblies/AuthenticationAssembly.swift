@@ -19,7 +19,7 @@ class AuthenticationAssembly: Assembly {
             .inObjectScope(.container)
         
         container.register(AuthenticationPresenter.self) { _ in AuthenticationPresenter() }
-            .inObjectScope(.container)
+            .inObjectScope(.graph)
         
         container.register(AuthenticationInteractor.self) { resolver in
             guard
@@ -95,5 +95,40 @@ class AuthenticationAssembly: Assembly {
             return vc
         }
         .inObjectScope(.graph)
+        
+        container.register(ForgotPasswordViewController.self) { resolver in
+            let vc = ForgotPasswordViewController()
+            guard
+                let router = resolver.resolve(AuthenticationRouter.self),
+                let interactor = resolver.resolve(AuthenticationInteractor.self),
+                let presenter = resolver.resolve(AuthenticationPresenter.self)
+            else {
+                fatalError("DI Error: AuthenticationRouter, AuthenticationInteractor или AuthenticationPresenter не зарегистрирован")
+            }
+            presenter.viewController = vc
+            interactor.presenter = presenter
+            vc.interactor = interactor
+            vc.router = router
+            return vc
+        }
+        .inObjectScope(.graph)
+        
+        container.register(CheckEmailViewController.self) { resolver in
+            let vc = CheckEmailViewController()
+            guard
+                let router = resolver.resolve(AuthenticationRouter.self),
+                let interactor = resolver.resolve(AuthenticationInteractor.self),
+                let presenter = resolver.resolve(AuthenticationPresenter.self)
+            else {
+                fatalError("DI Error: AuthenticationRouter, AuthenticationInteractor или AuthenticationPresenter не зарегистрирован")
+            }
+            presenter.viewController = vc
+            interactor.presenter = presenter
+            vc.interactor = interactor
+            vc.router = router
+            return vc
+        }
+        .inObjectScope(.graph)
+        
     }
 }

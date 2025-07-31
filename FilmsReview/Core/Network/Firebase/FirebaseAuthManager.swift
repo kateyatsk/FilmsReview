@@ -80,4 +80,16 @@ final class FirebaseAuthManager {
             completion(error)
         }
     }
+    
+    func resetPassword(email: String, completion: @escaping (Error?) -> Void) {
+        guard !email.isEmpty else {
+            completion(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Email cannot be empty"]))
+            return
+        }
+        
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            completion(error)
+        }
+    }
+    
 }

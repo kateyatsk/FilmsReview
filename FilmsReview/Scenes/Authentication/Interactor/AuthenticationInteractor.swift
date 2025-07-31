@@ -22,6 +22,7 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
     func deleteAccount(completion: @escaping (Error?) -> Void)
     
     func validateEmail(_ email: String) -> Bool
+    func resetPassword(email: String)
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
@@ -135,5 +136,17 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
             .evaluate(with: email)
     }
     
+    func resetPassword(email: String) {
+        worker.resetPassword(email: email) { [weak self] error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    (self?.presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+                } else {
+                    (self?.presenter as? AuthenticationPresenterProtocol)?.didResetPassword()
+                  
+                }
+            }
+        }
+    }
+    
 }
-
