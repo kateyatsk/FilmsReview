@@ -1,0 +1,53 @@
+//
+//  UIButton+Extension.swift
+//  FilmsReview
+//
+//  Created by Екатерина Яцкевич on 11.07.25.
+//
+
+import Foundation
+import UIKit
+
+enum ButtonStyle {
+    case filled
+    case outlined
+}
+
+enum ShadowStyle {
+    static let buttonOpacity: Float = 0.2
+    static let buttonOffset: CGSize = CGSize(width: 0, height: Size.xs5.height)
+    static let buttonRadius: CGFloat = CornerRadius.xs2
+}
+
+extension UIButton {
+    static func styled(
+        title: String,
+        style: ButtonStyle,
+        target: Any?,
+        action: Selector
+    ) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = .montserrat(.medium, size: FontSize.body)
+        button.layer.cornerRadius = CornerRadius.xl
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.heightAnchor.constraint(equalToConstant: Size.xl2.height).isActive = true
+
+        switch style {
+        case .filled:
+            button.backgroundColor = .buttonPrimary
+            button.setTitleColor(.white, for: .normal)
+            button.layer.shadowOpacity = ShadowStyle.buttonOpacity
+            button.layer.shadowOffset = ShadowStyle.buttonOffset
+            button.layer.shadowRadius = ShadowStyle.buttonRadius
+            button.layer.masksToBounds = false
+        case .outlined:
+            button.layer.borderWidth = Spacing.xs6
+            button.layer.borderColor = UIColor.buttonPrimary.cgColor
+            button.setTitleColor(.buttonPrimary, for: .normal)
+        }
+
+        button.addTarget(target, action: action, for: .touchUpInside)
+        return button
+    }
+}

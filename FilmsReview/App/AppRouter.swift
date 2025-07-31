@@ -8,7 +8,16 @@
 import UIKit
 
 final class AppRouter {
+    static var window: UIWindow?
+    
     static func startApp(window: UIWindow) {
+        self.window = window
+        updateRootViewController()
+        window.makeKeyAndVisible()
+    }
+    
+    static func updateRootViewController() {
+        guard let window = window else { return }
         let container = DependencyContainer.shared.container
         
         if !AppSettings.isOnboardingShown {
@@ -16,12 +25,22 @@ final class AppRouter {
                 fatalError("DI Error: OnboardingViewController not registered")
             }
             window.rootViewController = onboardingVC
-        } else {
-            guard let movieListVC = container.resolve(MovieListViewController.self) else {
-                fatalError("DI Error: MovieListViewController not resolved")
-            }
-            window.rootViewController = UINavigationController(rootViewController: movieListVC)
+            return
         }
-        window.makeKeyAndVisible()
+
+        if !AppSettings.isAuthorized {
+            guard let authVC = container.resolve(AuthenticationViewController.self) else {
+                fatalError("DI Error: AuthViewController not resolved")
+            }
+            window.rootViewController = UINavigationController(rootViewController: authVC)
+            return
+        }
+        
+        guard let movieListVC = container.resolve(MovieListViewController.self) else {
+            fatalError("DI Error: MovieListViewController not resolved")
+        }
+        window.rootViewController = UINavigationController(rootViewController: movieListVC)
+        
     }
+    
 }

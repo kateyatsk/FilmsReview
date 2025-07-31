@@ -21,12 +21,7 @@ final class OnboardingRouter: OnboardingRouterProtocol {
     }
     
     func routeToMainApp() {
-        let movieListVC = DependencyContainer.shared.container.resolve(MovieListViewController.self)!
-        let nav = UINavigationController(rootViewController: movieListVC)
-        if let window = UIApplication.shared.windows.first {
-            window.rootViewController = nav
-            window.makeKeyAndVisible()
-        }
+        AppRouter.updateRootViewController()
     }
 }
 
