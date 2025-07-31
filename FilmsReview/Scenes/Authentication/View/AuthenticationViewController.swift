@@ -42,7 +42,7 @@ final class AuthenticationViewController: UIViewController, AuthenticationVCProt
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .montserrat(.extraBold, size: FontSize.title)
         $0.textAlignment = .center
- 
+        $0.numberOfLines = Constants.Layout.unlimitedNumberOfLines
         $0.textColor = .titlePrimary
         return $0
     }(UILabel())

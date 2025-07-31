@@ -20,15 +20,17 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
     func stopEmailVerificationMonitoring()
     
     func deleteAccount(completion: @escaping (Error?) -> Void)
+    
+    func validateEmail(_ email: String) -> Bool
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
     var presenter: (any PresenterProtocol)?
-    var worker: AuthenticationWorker
+    var worker: AuthenticationWorkerProtocol
     
     private var timer: Timer?
     
-    init(presenter: AuthenticationPresenter? = nil, worker: AuthenticationWorker) {
+    init(presenter: AuthenticationPresenter? = nil, worker: AuthenticationWorkerProtocol) {
         self.presenter = presenter
         self.worker = worker
     }
@@ -128,4 +130,10 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
         }
     }
     
+    func validateEmail(_ email: String) -> Bool {
+        NSPredicate(format: "SELF MATCHES %@", ValidationRegex.email.rawValue)
+            .evaluate(with: email)
+    }
+    
 }
+

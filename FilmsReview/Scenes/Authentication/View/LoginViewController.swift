@@ -66,6 +66,8 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        hideKeyboardWhenTappedAround()
+        
         view.addSubviews(
             titleLabel,
             emailField,
