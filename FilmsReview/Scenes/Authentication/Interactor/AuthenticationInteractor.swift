@@ -23,6 +23,7 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
     
     func validateEmail(_ email: String) -> Bool
     func resetPassword(email: String)
+    func createProfile(name: String, birthday: Date)
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
@@ -143,10 +144,21 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
                     (self?.presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
                 } else {
                     (self?.presenter as? AuthenticationPresenterProtocol)?.didResetPassword()
-                  
                 }
             }
         }
     }
+    
+    func createProfile(name: String, birthday: Date) {
+        worker.saveUserProfile(name: name, birthday: birthday) { [weak self] result in
+            switch result {
+            case .success:
+                AppSettings.isAuthorized = true
+                (self?.presenter as? AuthenticationPresenterProtocol)?.didCreateProfile()
+            case .failure(let error):
+                (self?.presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+            }
+        }
+    }  
     
 }

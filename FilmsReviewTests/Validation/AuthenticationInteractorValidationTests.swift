@@ -18,6 +18,7 @@ final class MockAuthWorker: AuthenticationWorkerProtocol {
     func sendVerificationEmail(completion: @escaping ((any Error)?) -> Void) {}
     func reloadUser(completion: @escaping ((any Error)?) -> Void) {}
     func deleteUser(completion: @escaping ((any Error)?) -> Void) {}
+    func resetPassword(email: String, completion: @escaping ((any Error)?) -> Void) {}
 
 }
 

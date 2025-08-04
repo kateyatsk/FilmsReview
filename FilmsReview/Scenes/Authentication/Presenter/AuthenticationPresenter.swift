@@ -15,12 +15,14 @@ protocol AuthenticationPresenterProtocol: PresenterProtocol {
     func didFail(error: Error)
     func didConfirmEmail()
     func didResetPassword()
+    func didCreateProfile()
 }
 
 final class AuthenticationPresenter: AuthenticationPresenterProtocol {
     weak var viewController: ViewControllerProtocol?
     
     func didRegister(user: User) {
+        (viewController as? SignUpViewController)?.finishSubmitting()
         if user.isEmailVerified {
             AppSettings.isAuthorized = true
             AppRouter.updateRootViewController()
@@ -30,6 +32,7 @@ final class AuthenticationPresenter: AuthenticationPresenterProtocol {
     }
     
     func didLogin(user: User) {
+        (viewController as? LoginViewController)?.finishSubmitting()
         if user.isEmailVerified {
             AppSettings.isAuthorized = true
             AppRouter.updateRootViewController()
@@ -40,16 +43,22 @@ final class AuthenticationPresenter: AuthenticationPresenterProtocol {
     }
     
     func didFail(error: Error) {
+        (viewController as? SignUpViewController)?.finishSubmitting()
+        (viewController as? LoginViewController)?.finishSubmitting()
         viewController?.showErrorAlert(error.localizedDescription)
     }
     
     func didConfirmEmail() {
-        AppSettings.isAuthorized = true
-        AppRouter.updateRootViewController()
+        (viewController?.router as? AuthenticationRouterProtocol)?.navigateToCreateProfile()
     }
     
     func didResetPassword() {
         (viewController as? ForgotPasswordVCProtocol)?.showCheckYourEmailScreen()
+    }
+    
+    func didCreateProfile() {
+        AppSettings.isAuthorized = true
+        AppRouter.updateRootViewController()
     }
     
 }

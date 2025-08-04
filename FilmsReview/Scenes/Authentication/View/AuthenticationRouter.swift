@@ -18,6 +18,7 @@ protocol AuthenticationRouterProtocol: RouterProtocol {
     func routeToEmailVerification()
     func navigateToForgotPassword()
     func navigateToCheckYourEmail(email: String)
+    func navigateToCreateProfile()
 }
 
 final class AuthenticationRouter: AuthenticationRouterProtocol {
@@ -82,6 +83,11 @@ final class AuthenticationRouter: AuthenticationRouterProtocol {
     func navigateToCheckYourEmail(email: String) {
         guard let vc = DependencyContainer.shared.container.resolve(CheckEmailViewController.self) else { return }
         vc.email = email
+        viewController?.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func navigateToCreateProfile() {
+        guard let vc = DependencyContainer.shared.container.resolve(CreateProfileViewController.self) else { return }
         viewController?.navigationController?.pushViewController(vc, animated: true)
     }
 

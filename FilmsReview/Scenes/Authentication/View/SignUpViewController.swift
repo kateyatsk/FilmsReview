@@ -71,6 +71,8 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
     private var confirmPasswordLabelToPasswordConstraint: NSLayoutConstraint!
     private var confirmPasswordLabelToPasswordLabelConstraint: NSLayoutConstraint!
     
+    private var isSubmitting = false
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.Text.signUpTitle
@@ -160,6 +162,7 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
         view.backgroundColor = .white
         
         hideKeyboardWhenTappedAround()
+        (view.gestureRecognizers?.last as? UITapGestureRecognizer)?.delegate = self
         setupViewHierarchy()
         layout()
         validationView.reloadTags()
@@ -348,17 +351,24 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
     }
     
     @objc func createAccount() {
+        guard !isSubmitting else { return }
+        isSubmitting = true
+        createAccountButton.isEnabled = false
+        createAccountButton.alpha = Constants.Opacity.disable
+        
         let email = emailField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let password = passwordField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let confirm = confirmPasswordField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
         guard !email.isEmpty, !password.isEmpty, !confirm.isEmpty else {
             showErrorAlert(Constants.Text.allFieldsRequired)
+            finishSubmitting()
             return
         }
         
         if password != confirm {
             showErrorAlert(Constants.Text.passwordsDoNotMatch)
+            finishSubmitting()
             return
         }
         
@@ -371,7 +381,7 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
     
     @objc private func emailChanged(_ sender: UITextField) {
         guard let interactor = interactor as? AuthenticationInteractorProtocol else { return }
-        let email = sender.text ?? ""
+        let email = (sender.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         let isValid = interactor.validateEmail(email)
         emailField.layer.borderColor = isValid ? UIColor.titlePrimary.cgColor : UIColor.systemRed.cgColor
         emailErrorLabel.isHidden = isValid
@@ -390,6 +400,11 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
         (router as? AuthenticationRouterProtocol)?.routeToEmailVerification()
     }
     
+    func finishSubmitting() {
+        isSubmitting = false
+        updateCreateButtonState()
+    }
+    
     private func updateCreateButtonState() {
         let allValid = validationDelegate.rulesState.values.allSatisfy { $0 }
         createAccountButton.isEnabled = allValid
@@ -400,7 +415,6 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-    
     
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -434,5 +448,11 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
             }
         }
         return true
+    }
+}
+
+extension SignUpViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        return !(touch.view is UIControl)
     }
 }

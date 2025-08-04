@@ -21,7 +21,14 @@ protocol AuthenticationWorkerProtocol {
     func sendVerificationEmail(completion: @escaping (Error?) -> Void)
     func reloadUser(completion: @escaping (Error?) -> Void)
     func resetPassword(email: String, completion: @escaping (Error?) -> Void)
+    func saveUserProfile(
+        name: String,
+        birthday: Date,
+        completion: @escaping (Result<Void, Error>) -> Void
+    )
+    
     func deleteUser(completion: @escaping (Error?) -> Void)
+    
 }
 
 final class AuthenticationWorker: AuthenticationWorkerProtocol {
@@ -61,6 +68,29 @@ final class AuthenticationWorker: AuthenticationWorkerProtocol {
         FirebaseAuthManager.shared.resetPassword(email: email) { error in
             completion(error)
         }
+    }
+    
+    func saveUserProfile(
+        name: String,
+        birthday: Date,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        guard let uid = FirebaseAuthManager.shared.getCurrentUID() else {
+            return completion(.failure(
+                NSError(domain: "CreateProfile", code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
+            ))
+        }
+        let data: [String: Any] = [
+            "name": name,
+            "birthday": birthday
+        ]
+        FirestoreManager.shared.setDocument(
+            at: "users/\(uid)",
+            data: data,
+            merge: true,
+            completion: completion
+        )
     }
     
 }

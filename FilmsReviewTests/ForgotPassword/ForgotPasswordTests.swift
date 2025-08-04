@@ -38,6 +38,7 @@ final class MockAuthInteractor: AuthenticationInteractorProtocol {
     func stopEmailVerificationMonitoring() {}
     func deleteAccount(completion: @escaping (Error?) -> Void) {}
     func validateEmail(_ email: String) -> Bool { return true }
+    func createProfile(name: String, birthday: Date?) {}
 }
 
 final class MockAuthRouter: AuthenticationRouterProtocol {
@@ -53,6 +54,7 @@ final class MockAuthRouter: AuthenticationRouterProtocol {
     func navigateToSignUp() {}
     func routeToEmailVerification() {}
     func navigateToForgotPassword() {}
+    func navigateToCreateProfile() {}
 }
 
 final class ForgotPasswordTests: XCTestCase {
