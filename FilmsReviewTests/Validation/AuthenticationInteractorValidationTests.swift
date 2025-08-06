@@ -19,7 +19,7 @@ final class MockAuthWorker: AuthenticationWorkerProtocol {
     func reloadUser(completion: @escaping ((any Error)?) -> Void) {}
     func deleteUser(completion: @escaping ((any Error)?) -> Void) {}
     func resetPassword(email: String, completion: @escaping ((any Error)?) -> Void) {}
-
+    func saveUserProfile(name: String, birthday: Date, completion: @escaping (Result<Void, any Error>) -> Void) {}
 }
 
 final class AuthenticationInteractorValidationTests: XCTestCase {
