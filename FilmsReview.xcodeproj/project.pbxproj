@@ -12,6 +12,7 @@
 		8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0E02E0ED19300080537 /* FirebaseCore */; };
 		8B919F4D2E3BA9EB00C58030 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */; };
 		8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCC5BEB2E0C821600F092EF /* Swinject */; };
+		B141A2FA2E43F70D00A51EAB /* Cloudinary in Frameworks */ = {isa = PBXBuildFile; productRef = B141A2F92E43F70D00A51EAB /* Cloudinary */; };
 		B16F22192E2A4A11001FF003 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B16F22182E2A4A11001FF003 /* Lottie */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,7 @@
 			files = (
 				8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */,
 				8B919F4D2E3BA9EB00C58030 /* FirebaseFirestore in Frameworks */,
+				B141A2FA2E43F70D00A51EAB /* Cloudinary in Frameworks */,
 				8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */,
 				8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */,
 				B16F22192E2A4A11001FF003 /* Lottie in Frameworks */,
@@ -146,6 +148,7 @@
 				8B8CC0E02E0ED19300080537 /* FirebaseCore */,
 				B16F22182E2A4A11001FF003 /* Lottie */,
 				8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */,
+				B141A2F92E43F70D00A51EAB /* Cloudinary */,
 			);
 			productName = FilmsReview;
 			productReference = B13A80D02E09935600131ADC /* FilmsReview.app */;
@@ -233,6 +236,7 @@
 				8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */,
 				8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B16F22172E2A4A11001FF003 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				B141A2F82E43F70D00A51EAB /* XCRemoteSwiftPackageReference "cloudinary_ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B13A80D12E09935600131ADC /* Products */;
@@ -624,6 +628,14 @@
 				minimumVersion = 2.9.1;
 			};
 		};
+		B141A2F82E43F70D00A51EAB /* XCRemoteSwiftPackageReference "cloudinary_ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cloudinary/cloudinary_ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.2;
+			};
+		};
 		B16F22172E2A4A11001FF003 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios";
@@ -654,6 +666,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */;
 			productName = Swinject;
+		};
+		B141A2F92E43F70D00A51EAB /* Cloudinary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B141A2F82E43F70D00A51EAB /* XCRemoteSwiftPackageReference "cloudinary_ios" */;
+			productName = Cloudinary;
 		};
 		B16F22182E2A4A11001FF003 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;

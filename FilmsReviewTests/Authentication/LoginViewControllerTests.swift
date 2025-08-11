@@ -30,7 +30,7 @@ private class SpyLoginInteractor: AuthenticationInteractorProtocol {
     func deleteAccount(completion: @escaping (Error?) -> Void) {}
     func validateEmail(_ email: String) -> Bool { true }
     func resetPassword(email: String) {}
-    func createProfile(name: String, birthday: Date) {}
+    func createProfile(name: String, birthday: Date, avatarData: Data?) {}
 }
 
 private class SpyLoginRouter: AuthenticationRouterProtocol {
@@ -100,7 +100,7 @@ final class LoginViewControllerTests: XCTestCase {
         return btn
     }
 
-    func testSignInTapped_withEmptyFields_showsErrorAndDoesNotCallInteractor() {
+    func testSignInTappedWithEmptyFieldsShowsErrorAndDoesNotCallInteractor() {
          let email = textField(placeholder: "Email")
          let pass  = secureField()
 
@@ -121,7 +121,7 @@ final class LoginViewControllerTests: XCTestCase {
          )
     }
 
-    func testSignInTapped_withValidFields_callsInteractor_andDisablesButton() {
+    func testSignInTappedWithValidFieldsCallsInteractorAndDisablesButton() {
         let email = textField(placeholder: "Email")
         let pass  = secureField()
         email.text = "user@example.com"
@@ -143,7 +143,7 @@ final class LoginViewControllerTests: XCTestCase {
         )
     }
 
-    func testFinishSubmitting_reenablesButton() {
+    func testFinishSubmittingReenablesButton() {
         let loginBtn = button(title: "LOG IN")
         loginBtn.isEnabled = false
         vc.finishSubmitting()
@@ -153,7 +153,7 @@ final class LoginViewControllerTests: XCTestCase {
         )
     }
 
-    func testTogglePasswordVisibility_togglesSecureEntry() {
+    func testTogglePasswordVisibilityTogglesSecureEntry() {
         let pass = secureField()
         XCTAssertTrue(pass.isSecureTextEntry, "Пароль изначально скрыт")
         vc.perform(Selector(("togglePasswordVisibility")))
@@ -162,7 +162,7 @@ final class LoginViewControllerTests: XCTestCase {
         XCTAssertTrue(pass.isSecureTextEntry, "После второго toggle пароль снова скрыт")
     }
 
-    func testForgotPassword_callsRouter() {
+    func testForgotPasswordCallsRouter() {
         vc.perform(Selector(("showForgotPasswordScreen")))
         XCTAssertTrue(
             router.navigateToForgotPasswordCalled,
@@ -170,7 +170,7 @@ final class LoginViewControllerTests: XCTestCase {
         )
     }
 
-    func testSignUp_callsRouter() {
+    func testSignUpCallsRouter() {
         vc.perform(Selector(("signUpTapped")))
         XCTAssertTrue(
             router.navigateToSignUpCalled,
@@ -178,7 +178,7 @@ final class LoginViewControllerTests: XCTestCase {
         )
     }
 
-    func testReturnKey_flow() {
+    func testReturnKeyFlow() {
         let emailField = textField(placeholder: "Email")
         emailField.text = ""
         
@@ -197,5 +197,3 @@ final class LoginViewControllerTests: XCTestCase {
         
     }
 }
-
-

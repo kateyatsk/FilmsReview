@@ -222,12 +222,16 @@ final class CreateProfileViewController: UIViewController, CreateProfileVC {
     
     @objc private func navigateToHome() {
         let name = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !name.isEmpty else {
-            showErrorAlert("Name cannot be empty")
-            return
-        }
-        let birthday = birthdayPicker.date
-        (self.interactor as? AuthenticationInteractorProtocol)?.createProfile(name: name, birthday: birthday)
+            guard !name.isEmpty else {
+                showErrorAlert("Name cannot be empty")
+                return
+            }
+            let birthday = birthdayPicker.date
+            let avatarData = avatarImageView.image?
+                .jpegData(compressionQuality: 0.8)
+        
+            (interactor as? AuthenticationInteractorProtocol)?
+            .createProfile(name: name, birthday: birthday, avatarData: avatarData)
     }
     
     private func presentImagePicker() {

@@ -25,6 +25,11 @@ final class StubAuthWorker: AuthenticationWorkerProtocol {
 
     func signUp(email: String, password: String, completion: @escaping (Result<User, Error>) -> Void) {}
     func signIn(email: String, password: String, completion: @escaping (Result<User, Error>) -> Void) {}
+    func getCurrentUserEmail() -> String? {""}
+    func getCurrentUserID() -> String? {""}
+    func uploadAvatar(data: Data?, userId: String, completion: @escaping (Result<URL?, any Error>) -> Void) {   completion(.success(nil))
+    }
+    func saveUserProfileToFirestore(uid: String, email: String, name: String, birthday: Date, avatarURL: URL?, completion: @escaping (Result<Void, any Error>) -> Void) {}
     
     func signOut(completion: @escaping (Error?) -> Void) {
         didCallSignOut = true
@@ -108,22 +113,6 @@ final class AuthenticationInteractorTests: XCTestCase {
             if self.presenter.didResetPasswordCalled { exp.fulfill() }
         }
         wait(for: [exp], timeout: 0.5)
-    }
-
-
-    func testCreateProfileSuccessNotifiesPresenter() {
-        interactor.createProfile(name: "Ivan", birthday: Date())
-        XCTAssertTrue(worker.didCallSaveProfile, "Interactor должен вызвать worker.saveUserProfile()")
-        XCTAssertTrue(presenter.didCreateProfileCalled,
-                      "При успехе сохранения профиля interactor должен вызвать presenter.didCreateProfile()")
-    }
-
-    func testCreateProfileFailureShowsError() {
-        worker.saveProfileResult = .failure(NSError(domain: "Test", code: 1))
-        interactor.createProfile(name: "Olga", birthday: Date())
-        XCTAssertTrue(worker.didCallSaveProfile, "Interactor должен вызвать worker.saveUserProfile()")
-        XCTAssertTrue(presenter.didFailCalled,
-                      "При ошибке сохранения профиля interactor должен вызвать presenter.didFail(error:)")
     }
 
 

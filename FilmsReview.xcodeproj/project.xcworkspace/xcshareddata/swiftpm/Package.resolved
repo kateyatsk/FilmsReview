@@ -1,5 +1,5 @@
 {
-  "originHash" : "8c4f8e92812db66d98241244c1de9c52bc127785759881de4eb550c1fac9fc26",
+  "originHash" : "470153f374955c16723d887f00bee998612ff3e92a1085bbea123145c5a1680d",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "cloudinary_ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cloudinary/cloudinary_ios",
+      "state" : {
+        "revision" : "aead0d344c9bd8d48f3af24a93b0a9ade4e9dc59",
+        "version" : "5.2.2"
       }
     },
     {

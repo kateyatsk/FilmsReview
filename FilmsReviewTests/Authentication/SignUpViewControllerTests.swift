@@ -29,7 +29,7 @@ private class SpySignUpInteractor: AuthenticationInteractorProtocol {
     func deleteAccount(completion: @escaping (Error?) -> Void) {}
     func validateEmail(_ email: String) -> Bool { true }
     func resetPassword(email: String) {}
-    func createProfile(name: String, birthday: Date) {}
+    func createProfile(name: String, birthday: Date, avatarData: Data?) {}
 }
 
 private class SpySignUpRouter: AuthenticationRouterProtocol {
@@ -95,13 +95,13 @@ final class SignUpViewControllerTests: XCTestCase {
             .first { $0.title(for: .normal) == "Do you already have an account?" }!
     }
 
-    func testCreateAccount_emptyFields_doesNotCallRegister() {
+    func testCreateAccountEmptyFieldsDoesNotCallRegister() {
         vc.createAccount()
         XCTAssertFalse(interactor.registerCalled,
                       "При пустых полях register(email:password:) не должен вызываться")
     }
 
-    func testCreateAccount_mismatchedPasswords_doesNotCallRegister() {
+    func testCreateAccountMismatchedPasswordsDoesNotCallRegister() {
         emailField.text = "user@example.com"
         passwordField.text = "Pass1!"
         confirmField.text = "Other1!"
@@ -110,7 +110,7 @@ final class SignUpViewControllerTests: XCTestCase {
                       "При несовпадающих паролях register(email:password:) не должен вызываться")
     }
 
-    func testCreateAccount_validFields_callsRegister() {
+    func testCreateAccountValidFieldsCallsRegister() {
         emailField.text = "user@example.com"
         passwordField.text = "Secret1!"
         confirmField.text = "Secret1!"
@@ -121,7 +121,7 @@ final class SignUpViewControllerTests: XCTestCase {
         XCTAssertEqual(interactor.lastPassword, "Secret1!")
     }
 
-    func testLoginTapped_navigatesToLogin() {
+    func testLoginTappedNavigatesToLogin() {
         loginButton.sendActions(for: .touchUpInside)
         XCTAssertTrue(router.navigateToLoginCalled,
                       "При нажатии кнопки перехода к логину должен вызываться router.navigateToLogin()")

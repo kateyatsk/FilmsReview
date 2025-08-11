@@ -22,6 +22,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             AppSettings.isOnboardingShown = true
         }
         
+        if ProcessInfo.processInfo.environment["UITesting_CreateProfileScreen"] == "1" {
+            let window = UIWindow(windowScene: windowScene)
+            window.rootViewController = CreateProfileViewController()
+            self.window = window
+            window.makeKeyAndVisible()
+            return
+        }
+        
         let window = UIWindow(windowScene: windowScene)
         AppRouter.startApp(window: window)
         self.window = window

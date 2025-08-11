@@ -57,7 +57,7 @@ final class AuthenticationPresenterTests: XCTestCase {
         let vc = SpyVerificationVC()
         let router = StubAuthRouter()
         vc.router = router
-        presenter.viewController = vc 
+        presenter.viewController = vc
         presenter.didConfirmEmail()
         XCTAssertTrue(router.navigateToCreateProfileCalled,
                       "didConfirmEmail() презентера должен вызвать navigateToCreateProfile() у роутера")

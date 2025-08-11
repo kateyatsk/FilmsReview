@@ -20,8 +20,6 @@ final class ForgotPasswordVCSpy: UIViewController, ForgotPasswordVCProtocol {
 }
 
 final class MockAuthInteractor: AuthenticationInteractorProtocol {
-
-    
     var presenter: (any PresenterProtocol)?
     var resetPasswordCalled = false
     var passedEmail: String?
@@ -40,7 +38,7 @@ final class MockAuthInteractor: AuthenticationInteractorProtocol {
     func stopEmailVerificationMonitoring() {}
     func deleteAccount(completion: @escaping (Error?) -> Void) {}
     func validateEmail(_ email: String) -> Bool { return true }
-    func createProfile(name: String, birthday: Date) {}
+    func createProfile(name: String, birthday: Date, avatarData: Data?) {}
 }
 
 final class MockAuthRouter: AuthenticationRouterProtocol {
@@ -56,7 +54,7 @@ final class MockAuthRouter: AuthenticationRouterProtocol {
     func navigateToSignUp() {}
     func routeToEmailVerification() {}
     func navigateToForgotPassword() {}
-    func navigateToCreateProfile() {}
+    func navigateToCreateProfile() {}  
 }
 
 final class ForgotPasswordTests: XCTestCase {

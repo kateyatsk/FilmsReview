@@ -15,8 +15,13 @@ class AuthenticationAssembly: Assembly {
         container.register(AuthenticationRouter.self) { _ in AuthenticationRouter() }
             .inObjectScope(.container)
         
-        container.register(AuthenticationWorker.self) { _ in AuthenticationWorker() }
-            .inObjectScope(.container)
+        container.register(AuthenticationWorker.self) { resolver in
+            guard let cloudinary = resolver.resolve(CloudinaryManaging.self) else {
+                fatalError("DI Error: CloudinaryManaging не зарегистрирован")
+            }
+            return AuthenticationWorker(cloudinary: cloudinary)
+        }
+        .inObjectScope(.container)
         
         container.register(AuthenticationPresenter.self) { _ in AuthenticationPresenter() }
             .inObjectScope(.graph)
@@ -151,6 +156,10 @@ class AuthenticationAssembly: Assembly {
             return vc
         }
         .inObjectScope(.graph)
+        
+        container.register(CloudinaryManaging.self) { _ in
+          CloudinaryManager()
+        }.inObjectScope(.container)
         
     }
 }

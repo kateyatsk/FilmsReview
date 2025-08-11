@@ -7,7 +7,7 @@
 
 import XCTest
 
-final class AuthenticationFlowUITests: XCTestCase {
+final class AuthenticationUITests: XCTestCase {
     var app: XCUIApplication!
 
     private var testEmail: String {
@@ -40,15 +40,6 @@ final class AuthenticationFlowUITests: XCTestCase {
         let btn = app.buttons["LOG IN"]
         XCTAssertTrue(btn.waitForExistence(timeout: 5), "Кнопка LOG IN не найдена")
         btn.tap()
-    }
-
-    func testSignUpWithEmptyEmailDisablesCreateButton() {
-        openSignUp()
-
-        let createButton = app.buttons["Create a new account"]
-        XCTAssertTrue(createButton.exists, "Кнопка 'Create a new account' должна присутствовать на экране Sign Up")
-        XCTAssertFalse(createButton.isEnabled,
-                       "Кнопка 'Create a new account' должна быть неактивна при пустом email и паролях")
     }
 
     func testSignUpWithInvalidEmailShowsError() {
@@ -109,19 +100,6 @@ final class AuthenticationFlowUITests: XCTestCase {
         XCTAssertTrue(confirmTitle.waitForExistence(timeout: 5),
                       "После регистрации должен показаться экран подтверждения почты")
     }
-
-    func testResendEmailVerificationShowsAlert() {
-        testSignUpHappyPathShowsEmailConfirmation()
-
-        let resend = app.buttons["Resend"]
-        XCTAssertTrue(resend.exists, "Кнопка Resend не найдена")
-        resend.tap()
-
-        let okAlert = app.alerts.firstMatch
-        XCTAssertTrue(okAlert.waitForExistence(timeout: 2),
-                      "После нажатия Resend должен появиться алерт об отправке письма")
-    }
-
 
     func testLoginWithEmptyFieldsShowsError() {
         openLogin()

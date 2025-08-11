@@ -23,16 +23,21 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
     
     func validateEmail(_ email: String) -> Bool
     func resetPassword(email: String)
-    func createProfile(name: String, birthday: Date)
+    func createProfile(
+        name: String,
+        birthday: Date,
+        avatarData: Data?
+    )
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
+    
     var presenter: (any PresenterProtocol)?
     var worker: AuthenticationWorkerProtocol
     
     private var timer: Timer?
     
-    init(presenter: AuthenticationPresenter? = nil, worker: AuthenticationWorkerProtocol) {
+    init(presenter: AuthenticationPresenterProtocol? = nil, worker: AuthenticationWorkerProtocol) {
         self.presenter = presenter
         self.worker = worker
     }
@@ -149,16 +154,56 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
         }
     }
     
-    func createProfile(name: String, birthday: Date) {
-        worker.saveUserProfile(name: name, birthday: birthday) { [weak self] result in
+    func createProfile(
+        name: String,
+        birthday: Date,
+        avatarData: Data?
+    ) {
+        guard let uid = worker.getCurrentUserID() else {
+            let error = NSError(
+                domain: "CreateProfile",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "User not logged in"]
+            )
+            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+            return
+        }
+        
+        guard let email = worker.getCurrentUserEmail() else {
+            let error = NSError(
+                domain: "CreateProfile",
+                code: -2,
+                userInfo: [NSLocalizedDescriptionKey: "Email not found"]
+            )
+            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+            return
+        }
+        
+        worker.uploadAvatar(data: avatarData, userId: uid) { [weak self] result in
             switch result {
-            case .success:
-                AppSettings.isAuthorized = true
-                (self?.presenter as? AuthenticationPresenterProtocol)?.didCreateProfile()
+            case .success(let avatarURL):
+                self?.worker.saveUserProfileToFirestore(
+                    uid: uid,
+                    email: email,
+                    name: name,
+                    birthday: birthday,
+                    avatarURL: avatarURL
+                ) { result in
+                    switch result {
+                    case .success:
+                        AppSettings.isAuthorized = true
+                        (self?.presenter as? AuthenticationPresenterProtocol)?
+                            .didCreateProfile()
+                    case .failure(let error):
+                        (self?.presenter as? AuthenticationPresenterProtocol)?
+                            .didFail(error: error)
+                    }
+                }
+                
             case .failure(let error):
-                (self?.presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+                (self?.presenter as? AuthenticationPresenterProtocol)?
+                    .didFail(error: error)
             }
         }
-    }  
-    
+    }
 }
