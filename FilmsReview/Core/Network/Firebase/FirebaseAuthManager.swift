@@ -96,4 +96,8 @@ final class FirebaseAuthManager {
         Auth.auth().currentUser?.uid
     }
     
+    func getCurrentUserEmail() -> String? {
+        Auth.auth().currentUser?.email
+    }
+    
 }

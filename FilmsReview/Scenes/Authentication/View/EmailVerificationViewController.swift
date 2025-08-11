@@ -120,6 +120,8 @@ final class EmailVerificationViewController: UIViewController, EmailVerification
         )
         setupConstraints()
         animationView.play()
+        resendLabel.isHidden = true
+        resendButton.isHidden = true
         (interactor as? AuthenticationInteractorProtocol)?.startEmailVerificationMonitoring()
     }
     

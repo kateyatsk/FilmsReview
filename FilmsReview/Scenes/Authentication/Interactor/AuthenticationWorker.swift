@@ -21,17 +21,31 @@ protocol AuthenticationWorkerProtocol {
     func sendVerificationEmail(completion: @escaping (Error?) -> Void)
     func reloadUser(completion: @escaping (Error?) -> Void)
     func resetPassword(email: String, completion: @escaping (Error?) -> Void)
-    func saveUserProfile(
-        name: String,
-        birthday: Date,
-        completion: @escaping (Result<Void, Error>) -> Void
-    )
-    
     func deleteUser(completion: @escaping (Error?) -> Void)
     
+    func getCurrentUserEmail() -> String?
+    func getCurrentUserID() -> String?
+    
+    func uploadAvatar(data: Data?, userId: String, completion: @escaping (Result<URL?, Error>) -> Void)
+    func saveUserProfileToFirestore(
+        uid: String,
+        email: String,
+        name: String,
+        birthday: Date,
+        avatarURL: URL?,
+        completion: @escaping (Result<Void, Error>) -> Void
+    )
 }
 
 final class AuthenticationWorker: AuthenticationWorkerProtocol {
+    private let cloudinary: CloudinaryManaging
+    
+    init(
+        cloudinary: CloudinaryManaging
+    ) {
+        self.cloudinary = cloudinary
+    }
+    
     func signUp(email: String, password: String, completion: @escaping (Result<User, Error>) -> Void) {
         FirebaseAuthManager.shared.signUp(email: email, password: password, completion: completion)
     }
@@ -70,27 +84,50 @@ final class AuthenticationWorker: AuthenticationWorkerProtocol {
         }
     }
     
-    func saveUserProfile(
+    func getCurrentUserEmail() -> String? {
+        FirebaseAuthManager.shared.getCurrentUserEmail()
+    }
+    
+    func getCurrentUserID() -> String? {
+        FirebaseAuthManager.shared.getCurrentUID()
+    }
+    
+    func uploadAvatar(data: Data?, userId: String, completion: @escaping (Result<URL?, Error>) -> Void) {
+        guard let data = data else {
+            completion(.success(nil))
+            return
+        }
+        
+        cloudinary.upload(data: data, userId: userId) { result in
+            completion(result.map { Optional.some($0) })
+        }
+    }
+    
+    func saveUserProfileToFirestore(
+        uid: String,
+        email: String,
         name: String,
         birthday: Date,
+        avatarURL: URL?,
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
-        guard let uid = FirebaseAuthManager.shared.getCurrentUID() else {
-            return completion(.failure(
-                NSError(domain: "CreateProfile", code: -1,
-                        userInfo: [NSLocalizedDescriptionKey: "User not logged in"])
-            ))
+        let profile = UserProfile(uid: uid, email: email, name: name, birthday: birthday, avatarURL: avatarURL)
+        
+        do {
+            let data = try JSONEncoder().encode(profile)
+            guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw NSError(domain: "Serialization", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode profile"])
+            }
+            
+            FirestoreManager.shared.setDocument(
+                at: "users/\(uid)",
+                data: dict,
+                merge: true,
+                completion: completion
+            )
+        } catch {
+            completion(.failure(error))
         }
-        let data: [String: Any] = [
-            "name": name,
-            "birthday": birthday
-        ]
-        FirestoreManager.shared.setDocument(
-            at: "users/\(uid)",
-            data: data,
-            merge: true,
-            completion: completion
-        )
     }
     
 }

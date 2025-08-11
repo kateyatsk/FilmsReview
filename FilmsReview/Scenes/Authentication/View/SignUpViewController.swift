@@ -382,6 +382,7 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
     @objc private func emailChanged(_ sender: UITextField) {
         guard let interactor = interactor as? AuthenticationInteractorProtocol else { return }
         let email = (sender.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        sender.text = email
         let isValid = interactor.validateEmail(email)
         emailField.layer.borderColor = isValid ? UIColor.titlePrimary.cgColor : UIColor.systemRed.cgColor
         emailErrorLabel.isHidden = isValid
