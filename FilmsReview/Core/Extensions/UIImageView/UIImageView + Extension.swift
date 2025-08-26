@@ -6,24 +6,31 @@
 //
 
 import UIKit
-extension UIImageView {
-    func loadImage(from url: URL, placeholder: UIImage? = nil) {
-        self.image = placeholder
 
+extension UIImageView {
+    func loadImage(from url: URL, placeholder: UIImage? = nil, onError: ((Error) -> Void)? = nil) {
+        DispatchQueue.main.async { [weak self] in
+            self?.image = placeholder ?? UIImage(systemName: "photo")
+        }
+        
         URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             guard
-                let self = self,
+                error == nil,
+                let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode),
                 let data = data,
-                let image = UIImage(data: data),
-                error == nil
+                let image = UIImage(data: data)
             else {
-                print("Error loading image:", error ?? "Unknown error")
+                let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+                let err = NSError(domain: "ImageLoad", code: code,
+                                  userInfo: [NSLocalizedDescriptionKey: "Failed to load image"])
+                DispatchQueue.main.async {
+                    self?.image = UIImage(systemName: "exclamationmark.triangle")
+                    onError?(err)
+                }
                 return
             }
-
-            DispatchQueue.main.async {
-                self.image = image
-            }
+            
+            DispatchQueue.main.async { self?.image = image }
         }.resume()
     }
 }
