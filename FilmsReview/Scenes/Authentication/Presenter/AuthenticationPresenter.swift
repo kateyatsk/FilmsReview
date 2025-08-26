@@ -60,5 +60,4 @@ final class AuthenticationPresenter: AuthenticationPresenterProtocol {
         AppSettings.isAuthorized = true
         AppRouter.updateRootViewController()
     }
-    
 }
