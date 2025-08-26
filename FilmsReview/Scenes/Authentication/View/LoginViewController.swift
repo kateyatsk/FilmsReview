@@ -24,9 +24,11 @@ protocol LoginVCProtocol: ViewControllerProtocol {
     func showEmailVerificationScreen()
 }
 
-final class LoginViewController: UIViewController,LoginVCProtocol {
+final class LoginViewController: UIViewController,LoginVCProtocol, UITextFieldDelegate {
     var interactor: (any InteractorProtocol)?
     var router: (any RouterProtocol)?
+    
+    private var isSubmitting = false
     
     private lazy var titleLabel: UILabel = {
         $0.text = Constants.Text.signInTitle
@@ -77,6 +79,9 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
         view.backgroundColor = .white
         
         hideKeyboardWhenTappedAround()
+        
+        emailField.delegate = self
+        passwordField.delegate = self
         
         view.addSubviews(
             titleLabel,
@@ -171,13 +176,35 @@ final class LoginViewController: UIViewController,LoginVCProtocol {
     }
     
     @objc private func signInTapped() {
-        guard let email = emailField.text, !email.isEmpty,
-              let password = passwordField.text, !password.isEmpty else {
+        guard !isSubmitting else { return }
+        isSubmitting = true
+        loginButton.isEnabled = false
+        
+        let email = (emailField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let password = (passwordField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !email.isEmpty,!password.isEmpty else {
             showErrorAlert(Constants.Text.allFieldsRequired)
+            finishSubmitting()
             return
         }
         
         (interactor as? AuthenticationInteractorProtocol)?.login(email: email, password: password)
+    }
+    
+    func finishSubmitting() {
+        isSubmitting = false
+        loginButton.isEnabled = true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == emailField {
+            passwordField.becomeFirstResponder()
+        } else if textField == passwordField {
+            textField.resignFirstResponder()
+            signInTapped()
+        }
+        return true
     }
     
 }

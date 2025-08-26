@@ -9,6 +9,26 @@
 
 import Foundation
 
+fileprivate enum AuthConstants {
+    static let emailPollInterval: TimeInterval = 3.0
+}
+
+fileprivate enum CreateProfileError: Int, LocalizedError, CustomNSError {
+    case userNotLoggedIn = -1
+    case emailNotFound   = -2
+
+    static var errorDomain: String { "CreateProfile" }
+    var errorCode: Int { rawValue }
+    var errorUserInfo: [String : Any] { [NSLocalizedDescriptionKey: errorDescription ?? ""] }
+
+    var errorDescription: String? {
+        switch self {
+        case .userNotLoggedIn: return "User not logged in"
+        case .emailNotFound:   return "Email not found"
+        }
+    }
+}
+
 protocol AuthenticationInteractorProtocol: InteractorProtocol {
     func register(email: String, password: String)
     func login(email: String, password: String)
@@ -23,15 +43,21 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
     
     func validateEmail(_ email: String) -> Bool
     func resetPassword(email: String)
+    func createProfile(
+        name: String,
+        birthday: Date,
+        avatarData: Data?
+    )
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
+    
     var presenter: (any PresenterProtocol)?
     var worker: AuthenticationWorkerProtocol
     
     private var timer: Timer?
     
-    init(presenter: AuthenticationPresenter? = nil, worker: AuthenticationWorkerProtocol) {
+    init(presenter: AuthenticationPresenterProtocol? = nil, worker: AuthenticationWorkerProtocol) {
         self.presenter = presenter
         self.worker = worker
     }
@@ -77,7 +103,7 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
     func startEmailVerificationMonitoring() {
         guard timer == nil else { return }
         timer = Timer.scheduledTimer(
-            timeInterval: 3,
+            timeInterval: AuthConstants.emailPollInterval,
             target: self,
             selector: #selector(pollEmailVerificationStatus),
             userInfo: nil,
@@ -143,10 +169,51 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
                     (self?.presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
                 } else {
                     (self?.presenter as? AuthenticationPresenterProtocol)?.didResetPassword()
-                  
                 }
             }
         }
     }
     
+    func createProfile(
+        name: String,
+        birthday: Date,
+        avatarData: Data?
+    ) {
+        guard let uid = worker.getCurrentUserID() else {
+            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: CreateProfileError.userNotLoggedIn)
+            return
+        }
+        
+        guard let email = worker.getCurrentUserEmail() else {
+            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: CreateProfileError.emailNotFound)
+            return
+        }
+        
+        worker.uploadAvatar(data: avatarData, userId: uid) { [weak self] result in
+            switch result {
+            case .success(let avatarURL):
+                self?.worker.saveUserProfileToFirestore(
+                    uid: uid,
+                    email: email,
+                    name: name,
+                    birthday: birthday,
+                    avatarURL: avatarURL
+                ) { result in
+                    switch result {
+                    case .success:
+                        AppSettings.isAuthorized = true
+                        (self?.presenter as? AuthenticationPresenterProtocol)?
+                            .didCreateProfile()
+                    case .failure(let error):
+                        (self?.presenter as? AuthenticationPresenterProtocol)?
+                            .didFail(error: error)
+                    }
+                }
+                
+            case .failure(let error):
+                (self?.presenter as? AuthenticationPresenterProtocol)?
+                    .didFail(error: error)
+            }
+        }
+    }
 }

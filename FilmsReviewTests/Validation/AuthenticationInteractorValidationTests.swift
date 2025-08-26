@@ -9,15 +9,31 @@ import XCTest
 @testable import FilmsReview
 
 final class MockAuthWorker: AuthenticationWorkerProtocol {
+    
     func signUp(email: String, password: String, completion: @escaping (Result<FilmsReview.User, any Error>) -> Void) {}
     func signIn(email: String, password: String, completion: @escaping (Result<FilmsReview.User, any Error>) -> Void) {}
     func signOut(completion: @escaping ((any Error)?) -> Void) {}
+    
+    func getCurrentUserEmail() -> String? {""}
+    func getCurrentUserID() -> String? {""}
     
     func isUserLoggedIn() -> Bool {return false}
     func isEmailVerified() -> Bool {return false}
     func sendVerificationEmail(completion: @escaping ((any Error)?) -> Void) {}
     func reloadUser(completion: @escaping ((any Error)?) -> Void) {}
     func deleteUser(completion: @escaping ((any Error)?) -> Void) {}
+    func resetPassword(email: String, completion: @escaping ((any Error)?) -> Void) {}
+    func saveUserProfile(name: String, birthday: Date, completion: @escaping (Result<Void, any Error>) -> Void) {}
+    func uploadAvatar(data: Data?, userId: String, completion: @escaping (Result<URL?, any Error>) -> Void) {}
+    
+    func saveUserProfileToFirestore(
+        uid: String,
+        email: String,
+        name: String,
+        birthday: Date,
+        avatarURL: URL?,
+        completion: @escaping (Result<Void, any Error>) -> Void
+    ) {}
 
 }
 

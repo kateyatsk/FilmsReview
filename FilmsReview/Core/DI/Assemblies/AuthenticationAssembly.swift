@@ -15,8 +15,13 @@ class AuthenticationAssembly: Assembly {
         container.register(AuthenticationRouter.self) { _ in AuthenticationRouter() }
             .inObjectScope(.container)
         
-        container.register(AuthenticationWorker.self) { _ in AuthenticationWorker() }
-            .inObjectScope(.container)
+        container.register(AuthenticationWorker.self) { resolver in
+            guard let cloudinary = resolver.resolve(CloudinaryManaging.self) else {
+                fatalError("DI Error: CloudinaryManaging не зарегистрирован")
+            }
+            return AuthenticationWorker(cloudinary: cloudinary)
+        }
+        .inObjectScope(.container)
         
         container.register(AuthenticationPresenter.self) { _ in AuthenticationPresenter() }
             .inObjectScope(.graph)
@@ -87,11 +92,16 @@ class AuthenticationAssembly: Assembly {
         container.register(EmailVerificationViewController.self) { resolver in
             let vc = EmailVerificationViewController()
             guard
-                let interactor = resolver.resolve(AuthenticationInteractor.self)
+                let router = resolver.resolve(AuthenticationRouter.self),
+                let interactor = resolver.resolve(AuthenticationInteractor.self),
+                let presenter = resolver.resolve(AuthenticationPresenter.self)
             else {
-                fatalError("DI Error: AuthenticationInteractor не зарегистрирован")
+                fatalError("DI Error: AuthenticationRouter, AuthenticationInteractor или AuthenticationPresenter не зарегистрирован")
             }
+            presenter.viewController = vc
+            interactor.presenter = presenter
             vc.interactor = interactor
+            vc.router = router
             return vc
         }
         .inObjectScope(.graph)
@@ -129,6 +139,27 @@ class AuthenticationAssembly: Assembly {
             return vc
         }
         .inObjectScope(.graph)
+        
+        container.register(CreateProfileViewController.self) { resolver in
+            let vc = CreateProfileViewController()
+            guard
+                let router = resolver.resolve(AuthenticationRouter.self),
+                let interactor = resolver.resolve(AuthenticationInteractor.self),
+                let presenter = resolver.resolve(AuthenticationPresenter.self)
+            else {
+                fatalError("DI Error: AuthenticationRouter, AuthenticationInteractor или AuthenticationPresenter не зарегистрирован")
+            }
+            presenter.viewController = vc
+            interactor.presenter = presenter
+            vc.interactor = interactor
+            vc.router = router
+            return vc
+        }
+        .inObjectScope(.graph)
+        
+        container.register(CloudinaryManaging.self) { _ in
+          CloudinaryManager()
+        }.inObjectScope(.container)
         
     }
 }
