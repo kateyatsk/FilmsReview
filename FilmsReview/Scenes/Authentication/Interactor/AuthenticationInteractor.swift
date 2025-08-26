@@ -9,6 +9,26 @@
 
 import Foundation
 
+fileprivate enum AuthConstants {
+    static let emailPollInterval: TimeInterval = 3.0
+}
+
+fileprivate enum CreateProfileError: Int, LocalizedError, CustomNSError {
+    case userNotLoggedIn = -1
+    case emailNotFound   = -2
+
+    static var errorDomain: String { "CreateProfile" }
+    var errorCode: Int { rawValue }
+    var errorUserInfo: [String : Any] { [NSLocalizedDescriptionKey: errorDescription ?? ""] }
+
+    var errorDescription: String? {
+        switch self {
+        case .userNotLoggedIn: return "User not logged in"
+        case .emailNotFound:   return "Email not found"
+        }
+    }
+}
+
 protocol AuthenticationInteractorProtocol: InteractorProtocol {
     func register(email: String, password: String)
     func login(email: String, password: String)
@@ -83,7 +103,7 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
     func startEmailVerificationMonitoring() {
         guard timer == nil else { return }
         timer = Timer.scheduledTimer(
-            timeInterval: 3,
+            timeInterval: AuthConstants.emailPollInterval,
             target: self,
             selector: #selector(pollEmailVerificationStatus),
             userInfo: nil,
@@ -160,22 +180,12 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
         avatarData: Data?
     ) {
         guard let uid = worker.getCurrentUserID() else {
-            let error = NSError(
-                domain: "CreateProfile",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey: "User not logged in"]
-            )
-            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: CreateProfileError.userNotLoggedIn)
             return
         }
         
         guard let email = worker.getCurrentUserEmail() else {
-            let error = NSError(
-                domain: "CreateProfile",
-                code: -2,
-                userInfo: [NSLocalizedDescriptionKey: "Email not found"]
-            )
-            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: error)
+            (presenter as? AuthenticationPresenterProtocol)?.didFail(error: CreateProfileError.emailNotFound)
             return
         }
         
