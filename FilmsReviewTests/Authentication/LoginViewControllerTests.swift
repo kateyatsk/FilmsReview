@@ -31,6 +31,9 @@ private class SpyLoginInteractor: AuthenticationInteractorProtocol {
     func validateEmail(_ email: String) -> Bool { true }
     func resetPassword(email: String) {}
     func createProfile(name: String, birthday: Date, avatarData: Data?) {}
+    
+    func saveFavoriteGenres(_ genres: [String]) {}
+    func fetchTMDBGenres(language: String) {}
 }
 
 private class SpyLoginRouter: AuthenticationRouterProtocol {
@@ -44,6 +47,7 @@ private class SpyLoginRouter: AuthenticationRouterProtocol {
     func navigateToForgotPassword() { navigateToForgotPasswordCalled = true }
     func navigateToCheckYourEmail(email: String) {}
     func navigateToCreateProfile() {}
+    func navigateToChooseInterests() {}
 }
 
 

@@ -37,6 +37,9 @@ class AuthenticationWorkerMock: AuthenticationWorkerProtocol {
     func reloadUser(completion: @escaping (Error?) -> Void) {}
     func resetPassword(email: String, completion: @escaping (Error?) -> Void) {}
     func deleteUser(completion: @escaping (Error?) -> Void) {}
+    func updateUser(uid: String, fields: [String : Any], completion: @escaping (Result<Void, any Error>) -> Void) {}
+    func fetchTMDBGenresMerged(language: String, completion: @escaping (Result<[String], any Error>) -> Void) {}
+    
 }
 
 class AuthenticationPresenterMock: AuthenticationPresenterProtocol {
@@ -57,6 +60,14 @@ class AuthenticationPresenterMock: AuthenticationPresenterProtocol {
     func didLogin(user: User) {}
     func didResetPassword() {}
     func didConfirmEmail() {}
+    
+    func didStartLoadingGenres() {}
+    func didLoadGenres(names: [String]) {}
+    func didFailLoadingGenres(error: any Error) {}
+    
+    func didStartSavingFavoriteGenres() {}
+    func didSaveFavoriteGenres() {}
+    func didFailSavingFavoriteGenres(error: any Error) {}
 }
 
 

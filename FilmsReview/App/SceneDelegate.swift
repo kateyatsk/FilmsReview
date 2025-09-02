@@ -14,19 +14,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        if ProcessInfo.processInfo.environment["UITesting_ResetOnboarding"] == "1" {
-            AppSettings.isOnboardingShown = false
-        }
+        let env = ProcessInfo.processInfo.environment
         
-        if ProcessInfo.processInfo.environment["UITesting_SkipOnboarding"] == "1" {
-            AppSettings.isOnboardingShown = true
-        }
+        UITestLauncher.applyToggles(from: env)
         
-        if ProcessInfo.processInfo.environment["UITesting_CreateProfileScreen"] == "1" {
-            let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = CreateProfileViewController()
-            self.window = window
-            window.makeKeyAndVisible()
+        if let root = UITestLauncher.desiredRoot(from: env) {
+            setRoot(root, in: windowScene)
             return
         }
         
@@ -35,5 +28,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
     }
     
+    
+    private func setRoot(_ root: UIViewController, in scene: UIWindowScene) {
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = root
+        self.window = window
+        window.makeKeyAndVisible()
+    }
 }
 

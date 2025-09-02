@@ -63,6 +63,9 @@ final class StubAuthWorker: AuthenticationWorkerProtocol {
         didCallDeleteUser = true
         completion(deleteUserError)
     }
+    
+    func updateUser(uid: String, fields: [String : Any], completion: @escaping (Result<Void, any Error>) -> Void) {}
+    func fetchTMDBGenresMerged(language: String, completion: @escaping (Result<[String], any Error>) -> Void) {}
 }
 
 
@@ -81,6 +84,15 @@ final class SpyAuthPresenter: AuthenticationPresenterProtocol {
     func didConfirmEmail() { didConfirmEmailCalled = true }
     func didResetPassword() { didResetPasswordCalled = true }
     func didCreateProfile() { didCreateProfileCalled = true }
+    
+    func didStartLoadingGenres() {}
+    func didLoadGenres(names: [String]) {}
+    func didFailLoadingGenres(error: any Error) {}
+    
+    func didStartSavingFavoriteGenres() {}
+    func didSaveFavoriteGenres() {}
+    func didFailSavingFavoriteGenres(error: any Error) {}
+    
 }
 
 final class AuthenticationInteractorTests: XCTestCase {

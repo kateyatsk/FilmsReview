@@ -35,6 +35,7 @@ private final class StubAuthRouter: AuthenticationRouterProtocol {
     func navigateToCreateProfile() {
         navigateToCreateProfileCalled = true
     }
+    func navigateToChooseInterests() {}
 }
 
 final class AuthenticationPresenterTests: XCTestCase {
