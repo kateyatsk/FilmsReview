@@ -16,6 +16,15 @@ protocol AuthenticationPresenterProtocol: PresenterProtocol {
     func didConfirmEmail()
     func didResetPassword()
     func didCreateProfile()
+    
+    func didStartLoadingGenres()
+    func didLoadGenres(names: [String])
+    func didFailLoadingGenres(error: Error)
+    
+    func didStartSavingFavoriteGenres()
+    func didSaveFavoriteGenres()
+    func didFailSavingFavoriteGenres(error: Error)
+    
 }
 
 final class AuthenticationPresenter: AuthenticationPresenterProtocol {
@@ -58,6 +67,35 @@ final class AuthenticationPresenter: AuthenticationPresenterProtocol {
     
     func didCreateProfile() {
         AppSettings.isAuthorized = true
+    }
+    
+    func didStartLoadingGenres() {
+        (viewController as? ChooseInterestsVCProtocol)?.displayLoading(true)
+    }
+    
+    func didLoadGenres(names: [String]) {
+        (viewController as? ChooseInterestsVCProtocol)?.displayLoading(false)
+        (viewController as? ChooseInterestsVCProtocol)?.displayGenres(names)
+    }
+    
+    func didFailLoadingGenres(error: Error) {
+        (viewController as? ChooseInterestsVCProtocol)?.displayLoading(false)
+        viewController?.showErrorAlert(error.localizedDescription)
+    }
+    
+    func didStartSavingFavoriteGenres() {
+        (viewController as? ChooseInterestsVCProtocol)?.displayLoading(true)
+    }
+    
+    func didSaveFavoriteGenres() {
+        (viewController as? ChooseInterestsVCProtocol)?.displayLoading(false)
+        AppSettings.isAuthorized = true
         AppRouter.updateRootViewController()
     }
+    
+    func didFailSavingFavoriteGenres(error: Error) {
+        (viewController as? ChooseInterestsVCProtocol)?.displayLoading(false)
+        viewController?.showErrorAlert(error.localizedDescription)
+    }
+    
 }

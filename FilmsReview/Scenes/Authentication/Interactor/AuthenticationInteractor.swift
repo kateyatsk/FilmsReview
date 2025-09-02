@@ -9,22 +9,37 @@
 
 import Foundation
 
-fileprivate enum AuthConstants {
-    static let emailPollInterval: TimeInterval = 3.0
+fileprivate enum AuthConst {
+    enum Timing {
+        static let emailPollInterval: TimeInterval = 3.0
+    }
+    enum Domain {
+        static let createProfile = "CreateProfile"
+        static let saveGenres    = "SaveGenres"
+    }
+    
+    enum Field {
+        static let favoriteGenres = "favoriteGenres"
+    }
+    
+    enum Message {
+        static let userNotLoggedIn = "User not logged in"
+        static let emailNotFound   = "Email not found"
+    }
 }
 
 fileprivate enum CreateProfileError: Int, LocalizedError, CustomNSError {
     case userNotLoggedIn = -1
     case emailNotFound   = -2
-
-    static var errorDomain: String { "CreateProfile" }
+    
+    static var errorDomain: String {  AuthConst.Domain.createProfile  }
     var errorCode: Int { rawValue }
     var errorUserInfo: [String : Any] { [NSLocalizedDescriptionKey: errorDescription ?? ""] }
-
+    
     var errorDescription: String? {
         switch self {
-        case .userNotLoggedIn: return "User not logged in"
-        case .emailNotFound:   return "Email not found"
+        case .userNotLoggedIn: return AuthConst.Message.userNotLoggedIn
+        case .emailNotFound:   return  AuthConst.Message.emailNotFound
         }
     }
 }
@@ -48,6 +63,9 @@ protocol AuthenticationInteractorProtocol: InteractorProtocol {
         birthday: Date,
         avatarData: Data?
     )
+    func saveFavoriteGenres(_ genres: [String])
+    
+    func fetchTMDBGenres(language: String)
 }
 
 final class AuthenticationInteractor: AuthenticationInteractorProtocol {
@@ -103,7 +121,7 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
     func startEmailVerificationMonitoring() {
         guard timer == nil else { return }
         timer = Timer.scheduledTimer(
-            timeInterval: AuthConstants.emailPollInterval,
+            timeInterval: AuthConst.Timing.emailPollInterval,
             target: self,
             selector: #selector(pollEmailVerificationStatus),
             userInfo: nil,
@@ -213,6 +231,42 @@ final class AuthenticationInteractor: AuthenticationInteractorProtocol {
             case .failure(let error):
                 (self?.presenter as? AuthenticationPresenterProtocol)?
                     .didFail(error: error)
+            }
+        }
+    }
+    
+    func saveFavoriteGenres(_ genres: [String]) {
+        (presenter as? AuthenticationPresenterProtocol)?.didStartSavingFavoriteGenres()
+        
+        guard let uid = worker.getCurrentUserID() else {
+            (presenter as? AuthenticationPresenterProtocol)?
+                .didFailSavingFavoriteGenres(error: NSError(domain:  AuthConst.Domain.saveGenres, code: -1,
+                                                            userInfo: [NSLocalizedDescriptionKey: AuthConst.Message.userNotLoggedIn]))
+            return
+        }
+        
+        worker.updateUser(uid: uid, fields: [AuthConst.Field.favoriteGenres: genres]) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    (self?.presenter as? AuthenticationPresenterProtocol)?.didSaveFavoriteGenres()
+                case .failure(let error):
+                    (self?.presenter as? AuthenticationPresenterProtocol)?.didFailSavingFavoriteGenres(error: error)
+                }
+            }
+        }
+    }
+    
+    func fetchTMDBGenres(language: String) {
+        (presenter as? AuthenticationPresenterProtocol)?.didStartLoadingGenres()
+        worker.fetchTMDBGenresMerged(language: language) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let names):
+                    (self?.presenter as? AuthenticationPresenterProtocol)?.didLoadGenres(names: names)
+                case .failure(let error):
+                    (self?.presenter as? AuthenticationPresenterProtocol)?.didFailLoadingGenres(error: error)
+                }
             }
         }
     }
