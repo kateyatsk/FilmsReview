@@ -25,9 +25,18 @@ enum MontserratWeight: String {
 }
 
 enum FontSize {
-    static let caption: CGFloat = 12
-    static let body: CGFloat = 16
-    static let subtitle: CGFloat = 18
-    static let title: CGFloat = 24
-    static let largeTitle: CGFloat = 32
+    /// Caption text (12pt)
+    public static let caption: CGFloat = 12
+    
+    /// Body text (16pt)
+    public static let body: CGFloat = 16
+    
+    /// Subtitle text (18pt)
+    public static let subtitle: CGFloat = 18
+    
+    /// Title text (24pt)
+    public static let title: CGFloat = 24
+    
+    /// Large title text (32pt)
+    public static let largeTitle: CGFloat = 32
 }
