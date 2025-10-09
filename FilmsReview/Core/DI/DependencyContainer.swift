@@ -20,7 +20,12 @@ class DependencyContainer {
         let assembler = Assembler([
             MovieListAssembly(),
             OnboardingAssembly(),
-            AuthenticationAssembly()
+            AuthenticationAssembly(),
+            HomeAssembly(),
+            ProfileAssembly(),
+            FavoriteAssembly(),
+            SearchAssembly(),
+            MainAssembly()
         ], container: container)
     }
 }

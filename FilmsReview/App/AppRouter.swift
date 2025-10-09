@@ -36,11 +36,10 @@ final class AppRouter {
             return
         }
         
-        guard let movieListVC = container.resolve(MovieListViewController.self) else {
-            fatalError("DI Error: MovieListViewController not resolved")
+        guard let tabBar = container.resolve(TabBarViewController.self) else {
+            fatalError("DI Error: TabBarViewController not resolved")
         }
-        window.rootViewController = UINavigationController(rootViewController: movieListVC)
-        
+        window.rootViewController = tabBar
     }
     
 }
