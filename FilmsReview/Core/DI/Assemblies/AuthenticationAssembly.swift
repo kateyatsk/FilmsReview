@@ -15,11 +15,29 @@ class AuthenticationAssembly: Assembly {
         container.register(AuthenticationRouter.self) { _ in AuthenticationRouter() }
             .inObjectScope(.container)
         
-        container.register(AuthenticationWorker.self) { resolver in
-            guard let cloudinary = resolver.resolve(CloudinaryManaging.self) else {
-                fatalError("DI Error: CloudinaryManaging не зарегистрирован")
+        container.register(APIClient.self) { _ in
+            let cfg = try! APIConfig.tmdbFromPlist()
+            return APIClient(config: cfg)
+        }
+        .inObjectScope(.container)
+        
+        container.register(TMDBServiceProtocol.self) { r in
+            TMDBService(client: r.resolve(APIClient.self)!)
+        }
+        .inObjectScope(.container)
+        
+        container.register(CloudinaryManaging.self) { _ in
+            CloudinaryManager()
+        }.inObjectScope(.container)
+        
+        container.register(AuthenticationWorker.self) { r in
+            guard
+                let cloud = r.resolve(CloudinaryManaging.self),
+                let tmdb  = r.resolve(TMDBServiceProtocol.self)
+            else {
+                fatalError("DI Error: Missing dependencies for AuthenticationWorker")
             }
-            return AuthenticationWorker(cloudinary: cloudinary)
+            return AuthenticationWorker(cloudinary: cloud, tmdb: tmdb)
         }
         .inObjectScope(.container)
         
@@ -157,9 +175,21 @@ class AuthenticationAssembly: Assembly {
         }
         .inObjectScope(.graph)
         
-        container.register(CloudinaryManaging.self) { _ in
-          CloudinaryManager()
-        }.inObjectScope(.container)
+        container.register(ChooseInterestsViewController.self) { resolver in
+            let vc = ChooseInterestsViewController()
+            guard
+                let router = resolver.resolve(AuthenticationRouter.self),
+                let interactor = resolver.resolve(AuthenticationInteractor.self),
+                let presenter = resolver.resolve(AuthenticationPresenter.self)
+            else {
+                fatalError("DI Error: AuthenticationRouter, AuthenticationInteractor или AuthenticationPresenter не зарегистрирован")
+            }
+            presenter.viewController = vc
+            interactor.presenter = presenter
+            vc.interactor = interactor
+            vc.router = router
+            return vc
+        }
         
     }
 }

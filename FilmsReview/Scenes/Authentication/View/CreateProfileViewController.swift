@@ -233,6 +233,7 @@ final class CreateProfileViewController: UIViewController, CreateProfileVC {
         let avatarData = avatarImageView.image?
             .jpegData(compressionQuality: 0.8)
         
+        (router as? AuthenticationRouterProtocol)?.navigateToChooseInterests()
         (interactor as? AuthenticationInteractorProtocol)?
             .createProfile(name: name, birthday: birthday, avatarData: avatarData)
     }

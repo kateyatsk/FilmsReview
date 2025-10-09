@@ -35,15 +35,18 @@ protocol AuthenticationWorkerProtocol {
         avatarURL: URL?,
         completion: @escaping (Result<Void, Error>) -> Void
     )
+    func updateUser(uid: String, fields: [String: Any], completion: @escaping (Result<Void, Error>) -> Void)
+    
+    func fetchTMDBGenresMerged(language: String, completion: @escaping (Result<[String], Error>) -> Void)
 }
 
 final class AuthenticationWorker: AuthenticationWorkerProtocol {
     private let cloudinary: CloudinaryManaging
+    private let tmdb: TMDBServiceProtocol
     
-    init(
-        cloudinary: CloudinaryManaging
-    ) {
+    init(cloudinary: CloudinaryManaging, tmdb: TMDBServiceProtocol) {
         self.cloudinary = cloudinary
+        self.tmdb = tmdb
     }
     
     func signUp(email: String, password: String, completion: @escaping (Result<User, Error>) -> Void) {
@@ -130,4 +133,19 @@ final class AuthenticationWorker: AuthenticationWorkerProtocol {
         }
     }
     
+    func updateUser(uid: String, fields: [String: Any], completion: @escaping (Result<Void, Error>) -> Void) {
+        FirestoreManager.shared.setDocument(
+            at: "users/\(uid)",
+            data: fields,
+            merge: true,
+            completion: completion
+        )
+    }
+    
+    func fetchTMDBGenresMerged(language: String, completion: @escaping (Result<[String], Error>) -> Void) {
+        Task {
+            do { completion(.success(try await tmdb.mergedGenreNames(language: language))) }
+            catch { completion(.failure(error)) }
+        }
+    }
 }

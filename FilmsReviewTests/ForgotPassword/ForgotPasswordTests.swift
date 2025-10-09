@@ -39,6 +39,8 @@ final class MockAuthInteractor: AuthenticationInteractorProtocol {
     func deleteAccount(completion: @escaping (Error?) -> Void) {}
     func validateEmail(_ email: String) -> Bool { return true }
     func createProfile(name: String, birthday: Date, avatarData: Data?) {}
+    func saveFavoriteGenres(_ genres: [String]) {}
+    func fetchTMDBGenres(language: String) {}
 }
 
 final class MockAuthRouter: AuthenticationRouterProtocol {
@@ -54,7 +56,8 @@ final class MockAuthRouter: AuthenticationRouterProtocol {
     func navigateToSignUp() {}
     func routeToEmailVerification() {}
     func navigateToForgotPassword() {}
-    func navigateToCreateProfile() {}  
+    func navigateToCreateProfile() {}
+    func navigateToChooseInterests() {}
 }
 
 final class ForgotPasswordTests: XCTestCase {

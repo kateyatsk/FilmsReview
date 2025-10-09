@@ -13,4 +13,5 @@ struct UserProfile: Codable {
     let name: String
     let birthday: Date
     let avatarURL: URL?
+    var favoriteGenres: [String]?
 }

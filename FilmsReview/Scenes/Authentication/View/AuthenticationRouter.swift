@@ -19,6 +19,7 @@ protocol AuthenticationRouterProtocol: RouterProtocol {
     func navigateToForgotPassword()
     func navigateToCheckYourEmail(email: String)
     func navigateToCreateProfile()
+    func navigateToChooseInterests()
 }
 
 final class AuthenticationRouter: AuthenticationRouterProtocol {
@@ -79,7 +80,7 @@ final class AuthenticationRouter: AuthenticationRouterProtocol {
         guard let forgotVC = DependencyContainer.shared.container.resolve(ForgotPasswordViewController.self) else { return }
         viewController?.navigationController?.pushViewController(forgotVC, animated: true)
     }
-
+    
     func navigateToCheckYourEmail(email: String) {
         guard let vc = DependencyContainer.shared.container.resolve(CheckEmailViewController.self) else { return }
         vc.email = email
@@ -90,5 +91,19 @@ final class AuthenticationRouter: AuthenticationRouterProtocol {
         guard let vc = DependencyContainer.shared.container.resolve(CreateProfileViewController.self) else { return }
         viewController?.navigationController?.pushViewController(vc, animated: true)
     }
-
+    
+    func navigateToChooseInterests() {
+        guard
+            let vc = DependencyContainer.shared.container.resolve(ChooseInterestsViewController.self),
+            let source = viewController
+        else { return }
+        
+        if let nav = source.navigationController {
+            nav.pushViewController(vc, animated: true)
+        } else {
+            vc.modalPresentationStyle = .fullScreen
+            source.present(vc, animated: true)
+        }
+    }
+    
 }

@@ -9,7 +9,6 @@ import XCTest
 @testable import FilmsReview
 
 final class MockAuthWorker: AuthenticationWorkerProtocol {
-    
     func signUp(email: String, password: String, completion: @escaping (Result<FilmsReview.User, any Error>) -> Void) {}
     func signIn(email: String, password: String, completion: @escaping (Result<FilmsReview.User, any Error>) -> Void) {}
     func signOut(completion: @escaping ((any Error)?) -> Void) {}
@@ -34,6 +33,8 @@ final class MockAuthWorker: AuthenticationWorkerProtocol {
         avatarURL: URL?,
         completion: @escaping (Result<Void, any Error>) -> Void
     ) {}
+    func updateUser(uid: String, fields: [String : Any], completion: @escaping (Result<Void, any Error>) -> Void) {}
+    func fetchTMDBGenresMerged(language: String, completion: @escaping (Result<[String], any Error>) -> Void) {}
 
 }
 

@@ -18,6 +18,7 @@ final class MockCheckEmailRouter: AuthenticationRouterProtocol {
     func routeToEmailVerification() {}
     func navigateToForgotPassword() {}
     func navigateToCreateProfile() {}
+    func navigateToChooseInterests() {}
 }
 
 final class CheckEmailViewControllerTests: XCTestCase {
