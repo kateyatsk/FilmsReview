@@ -25,9 +25,6 @@ fileprivate enum Constants {
         static let firstRowTop: CGFloat = 20
         static let rowVerticalStep: CGFloat = 110
 
-//        static let containerCornerRadius = CornerRadius.m
-//        static let containerBackground: UIColor = .systemGray6
-
         static let posterLeading: CGFloat = 12
         static let posterWidthMultiplier: CGFloat = 0.3
 
