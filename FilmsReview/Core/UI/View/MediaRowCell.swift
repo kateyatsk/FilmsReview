@@ -82,9 +82,8 @@ final class MediaRowCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             posterView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             posterView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            posterView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -Spacing.xs4),
             posterView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: Constants.Poster.widthMultiplier),
-            posterView.heightAnchor.constraint(equalTo: posterView.widthAnchor, multiplier: PosterAspect.h4x3.hOverW),
+            posterView.heightAnchor.constraint(equalTo: posterView.widthAnchor, multiplier: PosterAspect.h9x16.hOverW),
             
             playButton.centerYAnchor.constraint(equalTo: posterView.centerYAnchor),
             playButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -109,7 +108,7 @@ final class MediaRowCell: UICollectionViewCell {
     func configure(with item: MediaItem) {
         titleLabel.text = item.title
         subtitleLabel.text = item.subtitle
-        posterView.image = item.poster
+        posterView.image = item.backdrop ?? item.poster
     }
     
     @objc private func onTapPlay() { onPlay?() }

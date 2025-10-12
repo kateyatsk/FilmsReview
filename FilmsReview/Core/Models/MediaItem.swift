@@ -11,18 +11,23 @@ struct MediaItem {
     let title: String
     let subtitle: String
     let poster: UIImage?
+    let backdrop: UIImage?
     let overview: String
     let metaChips: [MetaChip]
-    let seasonTitles: [String]
-    let episodes: [EpisodeVM]
-    let reviews: [ReviewVM]
-    let suggested: [MediaItem]
-    let cast: [CastVM]
+    var seasonTitles: [String]
+    var episodes: [EpisodeVM]
+    var reviews: [ReviewVM]
+    var suggested: [MediaItem]
+    var cast: [CastVM]
+    let tmdbId: Int?
+    let mediaType: String?
+    let genreIds: [Int]?
     
     init(
         title: String,
         subtitle: String = "",
         poster: UIImage? = nil,
+        backdrop: UIImage? = nil,
         genres: String = "",
         overview: String = "",
         metaChips: [MetaChip] = [],
@@ -30,11 +35,15 @@ struct MediaItem {
         episodes: [EpisodeVM] = [],
         reviews: [ReviewVM] = [],
         suggested: [MediaItem] = [],
-        cast: [CastVM] = []
+        cast: [CastVM] = [],
+        tmdbId: Int? = nil,
+        mediaType: String? = nil,
+        genreIds: [Int]? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
         self.poster = poster
+        self.backdrop = backdrop
         self.overview = overview
         self.metaChips = metaChips
         self.seasonTitles = seasonTitles
@@ -42,13 +51,10 @@ struct MediaItem {
         self.reviews = reviews
         self.suggested = suggested
         self.cast = cast
+        self.tmdbId = tmdbId
+        self.mediaType = mediaType
+        self.genreIds = genreIds
     }
     
-    var genres: String {
-        metaChips.compactMap {
-            if case .genre(let g) = $0 { return g }
-            return nil
-        }.joined(separator: ", ")
-    }
 }
 

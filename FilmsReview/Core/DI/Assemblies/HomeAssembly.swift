@@ -32,21 +32,27 @@ class HomeAssembly: Assembly {
         }
         .inObjectScope(.graph)
         
-        container.register(HomeWorker.self) { _ in
-            HomeWorker()
+        container.register(HomeWorker.self) { resolver in
+            guard
+                let tmdb = resolver.resolve(TMDBServiceProtocol.self),
+                let images = resolver.resolve(ImageLoaderProtocol.self)
+            else {
+                fatalError("TMDBServiceProtocol/ImageLoaderProtocol not registered")
+            }
+            return HomeWorker(tmdbService: tmdb, images: images)
         }
         .inObjectScope(.container)
         
+        
         container.register(HomeInteractor.self) { resolver in
             guard
-                let presenter = resolver.resolve(HomePresenter.self),
                 let worker = resolver.resolve(HomeWorker.self)
             else {
-                fatalError("DI Error: HomePresenter или HomeWorker не зарегистрирован")
+                fatalError("DI Error: HomeWorker не зарегистрирован")
             }
-            return HomeInteractor(presenter: presenter, worker: worker)
+            return HomeInteractor(worker: worker)
         }
-        .inObjectScope(.graph)
+        .inObjectScope(.container)
         
         container.register(HomePresenter.self) { _ in
             HomePresenter()
@@ -60,10 +66,22 @@ class HomeAssembly: Assembly {
         
         container.register(MediaListViewController.self) { resolver in
             let vc = MediaListViewController()
-            guard let mainRouter = resolver.resolve(HomeRouter.self) else {
-                fatalError("DI Error: HomeRouter не зарегистрирован для MediaListViewController")
+            
+            guard
+                let mainRouter = resolver.resolve(HomeRouter.self),
+                let homeInteractor = resolver.resolve(HomeInteractor.self),
+                let presenter = resolver.resolve(HomePresenter.self)
+            else {
+                fatalError("DI Error: HomeRouter, HomeInteractor или HomePresenter не зарегистрирован для MediaListViewController")
             }
+            
             vc.router = mainRouter
+            vc.interactor = homeInteractor
+            
+            mainRouter.viewController = vc
+            presenter.viewController = vc
+            homeInteractor.presenter = presenter
+            
             return vc
         }
         .inObjectScope(.transient)

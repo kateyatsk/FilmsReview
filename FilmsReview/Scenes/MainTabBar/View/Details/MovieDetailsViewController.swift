@@ -20,20 +20,24 @@ fileprivate enum Constants {
     }
     
     enum Suggested {
-        static let title = "Recommended for you"
+        static let title = "Suggested"
         static let fontSize: CGFloat = 14
         static let rowHeight: CGFloat = 220
     }
-    
 }
 
 protocol MovieDetailsViewControllerProtocol: ViewControllerProtocol {}
 
-final class MovieDetailsViewController: UIViewController, MovieDetailsViewControllerProtocol, MoviesSectionViewDelegate {
+final class MovieDetailsViewController: UIViewController,
+                                        MovieDetailsViewControllerProtocol,
+                                        MoviesSectionViewDelegate {
     var interactor: (any InteractorProtocol)?
     var router: (any RouterProtocol)?
     
     var viewModel: MediaItem? { didSet { if isViewLoaded { applyViewModel() } } }
+    private var isEpisodesLoading = false
+    
+    private var didSetInitialTab = false
     
     private lazy var headerView = MovieHeaderView()
     private lazy var tabsBar = SegmentsBar(titles: makeTabs(for: viewModel).map(\.rawValue))
@@ -42,7 +46,12 @@ final class MovieDetailsViewController: UIViewController, MovieDetailsViewContro
     private lazy var episodesSection = EpisodesSectionView()
     private lazy var reviewsSection = ReviewsSectionView()
     private lazy var suggestedSection: MoviesHorizontalSectionView = {
-        let view = MoviesHorizontalSectionView(title: Constants.Suggested.title, fontSize: Constants.Suggested.fontSize, showsSeeAll: false, rowHeight: Constants.Suggested.rowHeight)
+        let view = MoviesHorizontalSectionView(
+            title: Constants.Suggested.title,
+            fontSize: Constants.Suggested.fontSize,
+            showsSeeAll: false,
+            rowHeight: Constants.Suggested.rowHeight
+        )
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -54,6 +63,26 @@ final class MovieDetailsViewController: UIViewController, MovieDetailsViewContro
         buildLayout()
         wireActions()
         applyViewModel()
+        
+        suggestedSection.showSkeleton(style: .details)
+        
+        if let item = viewModel {
+            (interactor as? MainTabBarInteractorProtocol)?.loadCast(for: item)
+            (interactor as? MainTabBarInteractorProtocol)?.loadReviews(for: item)
+            (interactor as? MainTabBarInteractorProtocol)?.loadSuggested(for: item)
+            
+            if item.mediaType == "tv" {
+                isEpisodesLoading = true
+                episodesSection.showLoadingPlaceholder()
+                episodesSection.showSeasonButtonSkeleton()
+                (interactor as? MainTabBarInteractorProtocol)?.loadTVInitial(for: item)
+            }
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
     private func buildLayout() {
@@ -101,12 +130,6 @@ final class MovieDetailsViewController: UIViewController, MovieDetailsViewContro
         episodesSection.isHidden = true
         reviewsSection.isHidden = true
         suggestedSection.isHidden = true
-        
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
     private func wireActions() {
@@ -116,15 +139,18 @@ final class MovieDetailsViewController: UIViewController, MovieDetailsViewContro
         
         suggestedSection.delegate = self
         
-        episodesSection.onSelectEpisode = { _ in  }
+        episodesSection.onSelectEpisode = { _ in }
         episodesSection.onSeasonChanged = { [weak self] idx in
-            _ = (self, idx)
+            guard let self, let item = self.viewModel else { return }
+            (self.interactor as? MainTabBarInteractorProtocol)?
+                .loadTVSeason(for: item, seasonIndex: idx)
         }
         
         tabsBar.onSelect = { [weak self] idx in
             guard let self else { return }
             let tabs = self.makeTabs(for: self.viewModel)
             guard tabs.indices.contains(idx) else { return }
+            self.didSetInitialTab = true
             self.show(tab: tabs[idx])
         }
     }
@@ -140,46 +166,100 @@ final class MovieDetailsViewController: UIViewController, MovieDetailsViewContro
         )
         
         aboutSection.configure(overview: vm.overview, cast: vm.cast)
-        
-        episodesSection.configure(
-            seasons: vm.seasonTitles,
-            selectedSeasonIndex: 0,
-            episodes: vm.episodes
-        )
-        
         reviewsSection.configure(reviews: vm.reviews)
         
-        suggestedSection.items = vm.suggested
-        suggestedSection.isHidden = vm.suggested.isEmpty
+        if vm.suggested.isEmpty {
+            suggestedSection.showSkeleton(style: .details)
+            suggestedSection.items = []
+        } else {
+            suggestedSection.hideSkeleton()
+            suggestedSection.items = vm.suggested
+        }
+        
+        if vm.mediaType == "tv" {
+            if isEpisodesLoading {
+                episodesSection.showLoadingPlaceholder()
+            } else {
+                episodesSection.configure(
+                    seasons: vm.seasonTitles,
+                    selectedSeasonIndex: 0,
+                    episodes: vm.episodes
+                )
+            }
+        }
         
         let tabs = makeTabs(for: vm)
-        let initial = initialTab(for: vm)
-        if let idx = tabs.firstIndex(of: initial) {
-            tabsBar.select(index: idx, animated: false)
-            show(tab: initial)
+        tabsBar.titles = tabs.map(\.rawValue)
+        
+        if !didSetInitialTab {
+            let initial = initialTab(for: vm)
+            if let idx = tabs.firstIndex(of: initial) {
+                tabsBar.select(index: idx, animated: false)
+                show(tab: initial)
+                didSetInitialTab = true
+            }
         }
     }
     
+    func updateTVSeasons(titles: [String], selectedIndex: Int, episodes: [EpisodeVM]) {
+        if var vm = viewModel {
+            vm.seasonTitles = titles
+            vm.episodes = episodes
+            viewModel = vm
+        }
+        isEpisodesLoading = false
+        episodesSection.hideLoadingPlaceholder()
+        episodesSection.configure(seasons: titles, selectedSeasonIndex: selectedIndex, episodes: episodes)
+        
+        let tabs = makeTabs(for: viewModel)
+        tabsBar.titles = tabs.map(\.rawValue)
+        
+        if !didSetInitialTab, let idx = tabs.firstIndex(of: .episodes) {
+            tabsBar.select(index: idx, animated: false)
+            show(tab: .episodes)
+            didSetInitialTab = true
+        }
+    }
+    
+    func updateTVSeasonEpisodes(episodes: [EpisodeVM], selectedIndex: Int) {
+        episodesSection.configure(
+            seasons: episodesSection.seasons,
+            selectedSeasonIndex: selectedIndex,
+            episodes: episodes
+        )
+    }
+    
     private func makeTabs(for vm: MediaItem?) -> [Tab] {
-        let hasEpisodes  = !(vm?.seasonTitles.isEmpty ?? true)
-        let hasSuggested = !(vm?.suggested.isEmpty ?? true)
+        let isTV = (vm?.mediaType == "tv")
         return [
-            hasEpisodes ? .episodes : nil,
+            isTV ? .episodes : nil,
             .about,
             .review,
-            hasSuggested ? .suggested : nil
+            .suggested
         ].compactMap { $0 }
     }
     
     private func initialTab(for vm: MediaItem) -> Tab {
-        vm.seasonTitles.isEmpty ? .about : .episodes
+        (vm.mediaType == "tv") ? .episodes : .about
     }
     
     private func show(tab: Tab) {
         aboutSection.isHidden = tab != .about
         episodesSection.isHidden = tab != .episodes
         reviewsSection.isHidden = tab != .review
-        suggestedSection.isHidden = !(tab == .suggested && !suggestedSection.items.isEmpty)
+        suggestedSection.isHidden = tab != .suggested
+    }
+    
+    func updateReviews(_ reviews: [ReviewVM]) {
+        if var vm = viewModel { vm.reviews = reviews; viewModel = vm }
+        reviewsSection.configure(reviews: reviews)
+    }
+    
+    func updateSuggested(_ items: [MediaItem]) {
+        if var vm = viewModel { vm.suggested = items; viewModel = vm }
+        
+        suggestedSection.hideSkeleton()
+        suggestedSection.items = items
     }
     
     func moviesSectionDidTapSeeAll(_ view: MoviesHorizontalSectionView) {}
@@ -190,5 +270,9 @@ final class MovieDetailsViewController: UIViewController, MovieDetailsViewContro
         let item = suggestedSection.items[index]
         (router as? MainTabBarRouterProtocol)?.openDetails(for: item, from: self)
     }
+    
+    func updateCast(_ cast: [CastVM]) {
+        if var vm = viewModel { vm.cast = cast; viewModel = vm }
+        aboutSection.configure(overview: viewModel?.overview ?? "", cast: cast)
+    }
 }
-

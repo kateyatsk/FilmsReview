@@ -22,9 +22,5 @@ final class ProfilePresenter: ProfilePresenterProtocol {
 
     func prepareMoviesToBeDisplayed() {
         print("Prepare movies to be displayed")
-
-        if let movieListVC = viewController as? ProfileViewController {
-            movieListVC.updateMoviesTable()
-        }
     }
 }

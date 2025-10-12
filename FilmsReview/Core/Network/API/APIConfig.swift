@@ -17,9 +17,15 @@ struct APIConfig {
     }
 
     static func tmdbFromPlist() throws -> APIConfig {
-        guard let base = URL(string: APIConstants.tmdbBaseURL) else { throw APIError.invalidBaseURL }
-        guard let token = Bundle.main.object(forInfoDictionaryKey: APIConstants.tmdbTokenPlistKey) as? String,
-              !token.isEmpty else { throw APIError.missingToken }
+        guard let base = URL(string: APIConstants.tmdbBaseURL) else {
+            throw APIError.invalidBaseURL
+        }
+        guard let rawToken = Bundle.main.object(forInfoDictionaryKey: APIConstants.tmdbTokenPlistKey) as? String else {
+            throw APIError.missingToken
+        }
+        let token = rawToken.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !token.isEmpty else { throw APIError.missingToken }
+
         return .init(baseURL: base, bearerToken: token)
     }
 }

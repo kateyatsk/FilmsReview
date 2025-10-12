@@ -12,7 +12,7 @@ import Swinject
 import UIKit
 
 protocol HomeRouterProtocol: RouterProtocol {
-    func showMediaList(title: String, items: [MediaItem], from: UIViewController)
+    func showMediaList(title: String, items: [MediaItem], from: UIViewController, source: MediaListSource)
     func showMovieDetails(vm: MediaItem)
 }
 
@@ -23,9 +23,9 @@ final class HomeRouter: HomeRouterProtocol {
         self.viewController = viewController
     }
     
-    func showMediaList(title: String, items: [MediaItem], from: UIViewController) {
+    func showMediaList(title: String, items: [MediaItem], from: UIViewController, source: MediaListSource = .recommendations) {
         guard let vc = DependencyContainer.shared.container.resolve(MediaListViewController.self) else { return }
-        vc.configure(title: title, items: items)
+        vc.configure(title: title, items: items, source: source)
         from.navigationController?.pushViewController(vc, animated: true)
     }
     

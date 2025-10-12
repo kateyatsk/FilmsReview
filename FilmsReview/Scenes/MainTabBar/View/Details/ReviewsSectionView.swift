@@ -11,7 +11,7 @@ struct ReviewVM {
     let avatar: UIImage?
     let author: String
     let text: String
-    let rating: Double
+    let rating: Double?
 }
 
 fileprivate enum Constants {
@@ -20,6 +20,7 @@ fileprivate enum Constants {
         static let emptyState  = "No reviews yet"
         static let more = "More"
         static let less = "Less"
+        static let noRating = "-"
     }
 
     enum Layout {
@@ -148,6 +149,8 @@ final class ReviewCell: UITableViewCell {
     static let reuseID = "ReviewCell"
 
     weak var delegate: ReviewCellDelegate?
+    
+    private let placeholderAvatar = UIImage(resource: .noAvatar)
 
     private lazy var avatar: UIImageView = {
         let view = UIImageView()
@@ -285,7 +288,7 @@ final class ReviewCell: UITableViewCell {
     }
     
     func configure(_ vm: ReviewVM, expanded: Bool) {
-        avatar.image = vm.avatar
+        avatar.image = vm.avatar ?? placeholderAvatar
         name.text = vm.author
 
         let paragraph = NSMutableParagraphStyle()
@@ -301,7 +304,11 @@ final class ReviewCell: UITableViewCell {
             ]
         )
 
-        ratingLabel.text = String(format: "%.1f", vm.rating)
+        if let rating = vm.rating, rating.isFinite {
+            ratingLabel.text = String(format: "%.1f", rating)
+        } else {
+            ratingLabel.text = Constants.Text.noRating
+        }
 
         applyExpanded(expanded)
 

@@ -43,6 +43,38 @@ final class AuthenticationWorkerTmdbTests: XCTestCase {
 private enum TestError: Error { case any }
 
 private struct TMDBServiceStub: TMDBServiceProtocol {
+    func trendingAll(window: TimeWindow) async throws -> [TMDBMultiDTO] {
+        return []
+    }
+    
+    func discoverMoviesAndTv(movieGenreIDs: [Int], tvGenreIDs: [Int], page: Int) async throws -> [TMDBMultiDTO] {
+        return []
+    }
+    
+    func movieCredits(id: Int) async throws -> TMDBCredits {
+        return TMDBCredits(cast: [])
+    }
+    
+    func tvCredits(id: Int) async throws -> TMDBCredits {
+        return TMDBCredits(cast: [])
+    }
+    
+    func movieReviews(id: Int, page: Int) async throws -> [TMDBReview] {
+        return []
+    }
+    
+    func tvReviews(id: Int, page: Int) async throws -> [TMDBReview] {
+        return []
+    }
+    
+    func tvDetails(id: Int, language: String) async throws -> TMDBTVDetails {
+        return TMDBTVDetails(id: id, numberOfSeasons: nil, seasons: nil)
+    }
+    
+    func tvSeason(id: Int, seasonNumber: Int, language: String) async throws -> TMDBSeasonDetails {
+        return TMDBSeasonDetails(id: id, seasonNumber: seasonNumber, episodes: nil)
+    }
+    
     let result: Result<[String], Error>
 
     func genres(kind: TMDBMediaKind, language: String) async throws -> [TMDBGenre] {

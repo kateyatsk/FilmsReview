@@ -15,21 +15,6 @@ class AuthenticationAssembly: Assembly {
         container.register(AuthenticationRouter.self) { _ in AuthenticationRouter() }
             .inObjectScope(.container)
         
-        container.register(APIClient.self) { _ in
-            let cfg = try! APIConfig.tmdbFromPlist()
-            return APIClient(config: cfg)
-        }
-        .inObjectScope(.container)
-        
-        container.register(TMDBServiceProtocol.self) { r in
-            TMDBService(client: r.resolve(APIClient.self)!)
-        }
-        .inObjectScope(.container)
-        
-        container.register(CloudinaryManaging.self) { _ in
-            CloudinaryManager()
-        }.inObjectScope(.container)
-        
         container.register(AuthenticationWorker.self) { r in
             guard
                 let cloud = r.resolve(CloudinaryManaging.self),

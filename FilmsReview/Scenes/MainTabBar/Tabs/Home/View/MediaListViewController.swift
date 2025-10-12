@@ -1,11 +1,16 @@
 //
-//  TopSearchesViewController.swift
+//  MediaListViewController.swift
 //  FilmsReview
 //
 //  Created by Екатерина Яцкевич on 4.09.25.
 //
 
 import UIKit
+
+enum MediaListSource {
+    case topSearch
+    case recommendations
+}
 
 fileprivate enum Constants {
     enum Text {
@@ -25,6 +30,9 @@ fileprivate enum Constants {
         static let itemHeight: CGFloat = 96
         static let backButtonTop: CGFloat = 6
         static let insets = UIEdgeInsets(top: 12, left: Spacing.xs3, bottom: 12, right: Spacing.xs3)
+        static let footerHeight: CGFloat = 50
+        static let footerExtraBottom: CGFloat = 60
+        static let footerYOffset: CGFloat = 10
     }
     
     enum Size {
@@ -32,7 +40,9 @@ fileprivate enum Constants {
     }
 }
 
-protocol MediaListVCProtocol: ViewControllerProtocol {}
+protocol MediaListVCProtocol: ViewControllerProtocol {
+    func displayContent(viewModel: [MediaItem])
+}
 
 final class MediaListViewController: UIViewController,
                                      MediaListVCProtocol,
@@ -49,10 +59,23 @@ final class MediaListViewController: UIViewController,
         didSet { if isViewLoaded { titleLabel.text = titleText } }
     }
     
-    func configure(title: String? = nil, items: [MediaItem]? = nil) {
+    var listSource: MediaListSource = .recommendations
+    
+    func configure(title: String? = nil, items: [MediaItem]? = nil, source: MediaListSource? = nil) {
         if let title { self.titleText = title }
         if let items { self.items = items }
+        if let source { self.listSource = source }
     }
+    
+    private var isLoadingNextPage = false
+     
+     private lazy var loadingFooter: UIActivityIndicatorView = {
+         let indicator = UIActivityIndicatorView(style: .medium)
+         indicator.color = .gray
+         indicator.hidesWhenStopped = true
+         indicator.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height:  Constants.Layout.footerHeight)
+         return indicator
+     }()
     
     private lazy var backButton: UIButton = {
         let button = UIButton()
@@ -94,11 +117,23 @@ final class MediaListViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
+        
+        collectionView.addSubview(loadingFooter)
+        collectionView.contentInset.bottom = view.safeAreaInsets.bottom + Constants.Layout.footerExtraBottom
+        updateLoadingFooterFrame()
     }
+    
+    override func viewDidLayoutSubviews() {
+           super.viewDidLayoutSubviews()
+           updateLoadingFooterFrame()
+       }
+       
+       private func updateLoadingFooterFrame() {
+           loadingFooter.frame.origin.y = collectionView.contentSize.height + Constants.Layout.footerYOffset
+       }
     
     private func setupLayout() {
         view.backgroundColor = .white
- 
         view.addSubviews(backButton, titleLabel, collectionView)
         
         NSLayoutConstraint.activate([
@@ -115,14 +150,39 @@ final class MediaListViewController: UIViewController,
             collectionView.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: Spacing.xs4),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
         
         titleLabel.text = titleText
+        collectionView.delegate = self
     }
     
     @objc private func onBackTap() {
         navigationController?.popViewController(animated: true)
+    }
+    
+    func displayContent(viewModel: [MediaItem]) {
+        if items.isEmpty {
+            self.items = viewModel
+        } else {
+            let existingIDs = Set(items.map(\.tmdbId))
+            let newUnique = viewModel.filter { !existingIDs.contains($0.tmdbId) }
+            self.items.append(contentsOf: newUnique)
+        }
+        collectionView.reloadData()
+        stopFooterLoading()
+    }
+
+    private func startFooterLoading() {
+        guard !isLoadingNextPage else { return }
+        isLoadingNextPage = true
+        loadingFooter.startAnimating()
+        updateLoadingFooterFrame()
+    }
+    
+    private func stopFooterLoading() {
+        isLoadingNextPage = false
+        loadingFooter.stopAnimating()
     }
     
     func collectionView(_ cv: UICollectionView, numberOfItemsInSection section: Int) -> Int { items.count }
@@ -136,6 +196,7 @@ final class MediaListViewController: UIViewController,
     
     func collectionView(_ cv: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         cv.deselectItem(at: indexPath, animated: true)
+        
         let item = items[indexPath.item]
         (router as? HomeRouterProtocol)?.showMovieDetails(vm: item)
     }
@@ -143,5 +204,16 @@ final class MediaListViewController: UIViewController,
     func collectionView(_ cv: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = cv.bounds.width - Constants.Layout.insets.left - Constants.Layout.insets.right
         return .init(width: width, height: Constants.Layout.itemHeight)
+    }
+}
+
+extension MediaListViewController: UIScrollViewDelegate {
+    func collectionView(_ collectionView: UICollectionView,
+                        willDisplay cell: UICollectionViewCell,
+                        forItemAt indexPath: IndexPath) {
+        if indexPath.item == items.count - 1 {
+            startFooterLoading()
+            (interactor as? HomeInteractor)?.loadNextMediaListPageIfNeeded(currentIndex: indexPath.item, source: listSource)
+        }
     }
 }

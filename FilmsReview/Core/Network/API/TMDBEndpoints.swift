@@ -9,11 +9,23 @@ import Foundation
 
 enum TMDBMediaKind {
     case movie, tv
-
-    var path: String {
+    
+    var discoverPath: String {
         switch self {
-        case .movie: "genre/movie/list"
-        case .tv:    "genre/tv/list"
+        case .movie: return "discover/movie"
+        case .tv: return "discover/tv"
         }
     }
+
+    var genreListPath: String {
+        switch self {
+        case .movie: "genre/movie/list"
+        case .tv: "genre/tv/list"
+        }
+    }
+}
+
+enum TimeWindow: String {
+    case day
+    case week
 }

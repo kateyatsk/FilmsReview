@@ -194,13 +194,37 @@ final class AboutSectionView: UIView, UICollectionViewDataSource, UICollectionVi
         ? (isExpanded ? Constants.Layout.unlimitedNumberOfLines : Constants.Layout.numberOfLines)
         : Constants.Layout.unlimitedNumberOfLines
         
-        moreButton.isHidden = !hasOverview
+        let shouldShowMore = hasOverview && needsTruncation(lines: Constants.Layout.numberOfLines)
+        moreButton.isHidden = !shouldShowMore
+        
         
         let isEmpty = cast.isEmpty
         castTitle.isHidden = isEmpty
         castCollectionView.isHidden = isEmpty
         
         castCollectionView.reloadData()
+    }
+    
+    private func needsTruncation(lines: Int) -> Bool {
+        guard let text = textLabel.text, !text.isEmpty else { return false }
+        let labelWidth = textLabel.bounds.width
+        guard labelWidth > 0 else { return false }
+        
+        let sizingLabel = UILabel()
+        sizingLabel.font = textLabel.font
+        sizingLabel.text = text
+        sizingLabel.numberOfLines = 0
+        sizingLabel.lineBreakMode = .byWordWrapping
+        sizingLabel.frame.size = CGSize(width: labelWidth, height: .greatestFiniteMagnitude)
+        sizingLabel.sizeToFit()
+        let fullHeight = sizingLabel.bounds.height
+        
+        sizingLabel.numberOfLines = lines
+        sizingLabel.frame.size = CGSize(width: labelWidth, height: .greatestFiniteMagnitude)
+        sizingLabel.sizeToFit()
+        let limitedHeight = sizingLabel.bounds.height
+        
+        return fullHeight > limitedHeight + 1
     }
     
     func collectionView(_ cv: UICollectionView,
@@ -237,6 +261,8 @@ final class AboutSectionView: UIView, UICollectionViewDataSource, UICollectionVi
 final class CastChipCell: UICollectionViewCell {
     static let reuseID = "CastChipCell"
     
+    private let placeholderImage = UIImage(named: "noAvatar")
+    
     private lazy var container: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -268,9 +294,16 @@ final class CastChipCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
-        
+        avatar.image = placeholderImage
     }
     required init?(coder: NSCoder) { nil }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        avatar.image = placeholderImage
+        name.text = nil
+    }
     
     private func setupLayout() {
         contentView.addSubview(container)
@@ -294,7 +327,7 @@ final class CastChipCell: UICollectionViewCell {
     }
     
     func configure(vm: CastVM) {
-        avatar.image = vm.avatar
+        avatar.image = vm.avatar ?? placeholderImage
         name.text = vm.name
     }
 }

@@ -12,13 +12,26 @@ fileprivate enum Constants {
     static let textStackSpacing: CGFloat = 2
     
     static let notificationSystemImageName = "bell"
-
+    
     static let badgeTrailingOffset: CGFloat = -2
     static let badgeCornerRadius: CGFloat = 5
     
     static let subtitleDefaultText = "Let's watch a movie"
     static let greetingFormat = "Hi, %@"
     static let greetingFallback = "Hi there"
+    
+    enum TextLayout {
+        static let singleLine = 1
+    }
+    
+    enum Skeleton {
+        static let subtitleHeight: CGFloat = 12
+    }
+    
+    enum Alpha {
+        static let hidden: CGFloat = 0
+        static let visible: CGFloat = 1
+    }
 }
 
 final class HomeHeaderView: UIView {
@@ -46,6 +59,8 @@ final class HomeHeaderView: UIView {
         label.font = .montserrat(.regular, size: FontSize.body)
         label.textColor = .secondaryLabel
         label.text = Constants.subtitleDefaultText
+        label.numberOfLines = Constants.TextLayout.singleLine
+        label.lineBreakMode = .byTruncatingTail
         return label
     }()
     
@@ -75,19 +90,47 @@ final class HomeHeaderView: UIView {
         return stack
     }()
     
+    private lazy var avatarSkeleton = makeSkeleton()
+    private lazy var subtitleSkeleton = makeSkeleton()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
     func configure(avatar: UIImage?, name: String) {
-        avatarImageView.image = avatar
+        hideSkeleton()
+        
+        let fallback = UIImage(resource: .noAvatar)
+        avatarImageView.image = avatar ?? fallback
+        
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        titleLabel.text = trimmed.isEmpty ? Constants.greetingFallback : String(format: Constants.greetingFormat, trimmed)
+        titleLabel.text = trimmed.isEmpty
+        ? Constants.greetingFallback
+        : String(format: Constants.greetingFormat, trimmed)
+    }
+    
+    func showSkeleton() {
+        avatarImageView.alpha = Constants.Alpha.hidden
+        titleLabel.alpha = Constants.Alpha.hidden
+        subtitleLabel.alpha = Constants.Alpha.hidden
+        
+        [avatarSkeleton, subtitleSkeleton].forEach {
+            $0.isHidden = false
+            $0.startShimmer()
+        }
+    }
+    
+    private func hideSkeleton() {
+        [avatarSkeleton, subtitleSkeleton].forEach {
+            $0.stopShimmer()
+            $0.isHidden = true
+        }
+        avatarImageView.alpha = Constants.Alpha.visible
+        titleLabel.alpha = Constants.Alpha.visible
+        subtitleLabel.alpha = Constants.Alpha.visible
     }
     
     private func setupLayout() {
@@ -100,19 +143,41 @@ final class HomeHeaderView: UIView {
             avatarImageView.widthAnchor.constraint(equalToConstant: Constants.avatarSide),
             avatarImageView.heightAnchor.constraint(equalToConstant: Constants.avatarSide),
             
-            textStack.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor,
-                                               constant: Size.xs2.width),
+            textStack.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Size.xs2.width),
             textStack.centerYAnchor.constraint(equalTo: centerYAnchor),
+            textStack.trailingAnchor.constraint(lessThanOrEqualTo: notificationButton.leadingAnchor, constant: -Spacing.xs3),
             
             notificationButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             notificationButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             
-            badgeView.topAnchor.constraint(equalTo: notificationButton.topAnchor,
-                                           constant: Spacing.xs5),
-            badgeView.trailingAnchor.constraint(equalTo: notificationButton.trailingAnchor,
-                                                constant: Constants.badgeTrailingOffset),
+            badgeView.topAnchor.constraint(equalTo: notificationButton.topAnchor, constant: Spacing.xs5),
+            badgeView.trailingAnchor.constraint(equalTo: notificationButton.trailingAnchor, constant: Constants.badgeTrailingOffset),
             badgeView.widthAnchor.constraint(equalToConstant: Size.xs3.width),
             badgeView.heightAnchor.constraint(equalToConstant: Size.xs3.height),
         ])
+        
+        addSubviews(avatarSkeleton, subtitleSkeleton)
+        avatarSkeleton.translatesAutoresizingMaskIntoConstraints = false
+        subtitleSkeleton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            avatarSkeleton.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
+            avatarSkeleton.topAnchor.constraint(equalTo: avatarImageView.topAnchor),
+            avatarSkeleton.widthAnchor.constraint(equalTo: avatarImageView.widthAnchor),
+            avatarSkeleton.heightAnchor.constraint(equalTo: avatarImageView.heightAnchor),
+            
+            subtitleSkeleton.leadingAnchor.constraint(equalTo: subtitleLabel.leadingAnchor),
+            subtitleSkeleton.trailingAnchor.constraint(equalTo: subtitleLabel.trailingAnchor),
+            subtitleSkeleton.centerYAnchor.constraint(equalTo: subtitleLabel.centerYAnchor),
+            subtitleSkeleton.heightAnchor.constraint(equalToConstant: Constants.Skeleton.subtitleHeight),
+        ])
+        
+        avatarSkeleton.layer.cornerRadius = avatarImageView.layer.cornerRadius
+    }
+    
+    private func makeSkeleton() -> SkeletonView {
+        let skeletonView = SkeletonView()
+        skeletonView.isUserInteractionEnabled = false
+        return skeletonView
     }
 }
