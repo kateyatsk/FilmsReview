@@ -10,24 +10,35 @@
 import Foundation
 
 protocol FavoriteInteractorProtocol: InteractorProtocol {
-    func sendFetchRequestToAPI()
+    func load(uid: String)
+    func toggle(item: MediaItem, isFavorite: Bool, uid: String)
 }
 
 final class FavoriteInteractor: FavoriteInteractorProtocol {
     var presenter: (any PresenterProtocol)?
-    var worker: FavoriteWorker
+    let worker: FavoriteWorkerProtocol
 
-    init(presenter: FavoritePresenter? = nil, worker: FavoriteWorker) {
+    init(presenter: FavoritePresenter? = nil, worker: FavoriteWorkerProtocol) {
         self.presenter = presenter
         self.worker = worker
     }
 
-    func sendFetchRequestToAPI() {
-        print("Have sent request to worker")
-        worker.fetchMovies()
+    func load(uid: String) {
+        (presenter as? FavoritePresenterProtocol)?.setLoading(true)
+        Task {
+            do {
+                let items = try await worker.loadFavorites(uid: uid)
+                (presenter as? FavoritePresenterProtocol)?.present(items: items)
+            } catch {
+                (presenter as? FavoritePresenterProtocol)?.present(items: [])
+            }
+            (presenter as? FavoritePresenterProtocol)?.setLoading(false)
+        }
+    }
 
-        if let presenter = presenter as? FavoritePresenter {
-            presenter.prepareMoviesToBeDisplayed()
+    func toggle(item: MediaItem, isFavorite: Bool, uid: String) {
+        Task {
+            try? await worker.toggleFavorite(uid: uid, item: item, isFavorite: isFavorite)
         }
     }
 }
