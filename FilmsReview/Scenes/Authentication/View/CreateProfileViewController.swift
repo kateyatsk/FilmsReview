@@ -16,12 +16,15 @@ fileprivate enum Constants {
         static let birthdayPlaceholder = "MM/DD/YYYY"
         static let createProfile = "Create Profile"
         static let datePickerDone = "Done"
+
+        static let leaveTitle = "Leave setup?"
+        static let leaveMessage = "This will sign out and discard profile creation."
+        static let cancel = "Cancel"
+        static let signOut = "Sign Out"
     }
-    
     enum Layout {
         static let border: CGFloat = 3
     }
-    
     enum Age {
         static let minYears = 6
         static let maxYears = 100
@@ -140,6 +143,7 @@ final class CreateProfileViewController: UIViewController, CreateProfileVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        setupNav()
         setupUI()
         setupConstraints()
         hideKeyboardWhenTappedAround()
@@ -175,6 +179,43 @@ final class CreateProfileViewController: UIViewController, CreateProfileVC {
             birthdayTextField,
             createButton
         )
+    }
+    
+    private func setupNav() {
+        navigationItem.hidesBackButton = true
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.backward"),
+            style: .plain,
+            target: self,
+            action: #selector(handleBackSignOut)
+        )
+    }
+    
+    @objc private func handleBackSignOut() {
+        let alert = UIAlertController(
+            title: Constants.Text.leaveTitle,
+            message: Constants.Text.leaveMessage,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
+        alert.addAction(UIAlertAction(title: Constants.Text.signOut, style: .destructive) { [weak self] _ in
+            self?.performFullSignOut()
+        })
+        present(alert, animated: true)
+    }
+    
+    private func performFullSignOut() {
+        FirebaseAuthManager.shared.signOut { [weak self] error in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if let error {
+                    self.showErrorAlert(error.localizedDescription)
+                    return
+                }
+                AppSettings.isAuthorized = false
+                AppRouter.updateRootViewController()
+            }
+        }
     }
     
     private func setupConstraints() {

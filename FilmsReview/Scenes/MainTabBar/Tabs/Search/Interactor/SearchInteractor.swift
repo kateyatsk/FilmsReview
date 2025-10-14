@@ -10,24 +10,51 @@
 import Foundation
 
 protocol SearchInteractorProtocol: InteractorProtocol {
-    func sendFetchRequestToAPI()
+    func loadTopSearches()
+    func search(query: String)
 }
 
 final class SearchInteractor: SearchInteractorProtocol {
     var presenter: (any PresenterProtocol)?
-    var worker: SearchWorker
+    private let worker: SearchWorkerProtocol
+    private var currentSearchTask: Task<Void, Never>?
 
-    init(presenter: SearchPresenter? = nil, worker: SearchWorker) {
-        self.presenter = presenter
-        self.worker = worker
+    init(worker: SearchWorkerProtocol) { self.worker = worker }
+
+    func loadTopSearches() {
+        Task {
+            do {
+                let items = try await worker.loadTopSearches(page: 1)
+                await MainActor.run {
+                    (presenter as? SearchPresenterProtocol)?.presentTop(items)
+                }
+            } catch {
+                await MainActor.run {
+                    (presenter as? SearchPresenterProtocol)?.presentError(error)
+                }
+            }
+        }
     }
 
-    func sendFetchRequestToAPI() {
-        print("Have sent request to worker")
-        worker.fetchMovies()
-
-        if let presenter = presenter as? SearchPresenter {
-            presenter.prepareMoviesToBeDisplayed()
+    func search(query: String) {
+        currentSearchTask?.cancel()
+        
+        currentSearchTask = Task {
+            do {
+                let items = try await worker.searchItems(query: query, page: 1)
+                
+                guard !Task.isCancelled else { return }
+                
+                await MainActor.run {
+                    (presenter as? SearchPresenterProtocol)?.presentResults(items)
+                }
+            } catch {
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    (presenter as? SearchPresenterProtocol)?.presentError(error)
+                }
+            }
         }
     }
 }
+

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TMDBGenre: Decodable, Hashable {
+struct TMDBGenre: Codable, Hashable {
     let id: Int
     let name: String
 }
@@ -58,7 +58,7 @@ struct TMDBReview: Decodable {
     let author: String?
     let content: String?
     let authorDetails: AuthorDetails?
-
+    
     struct AuthorDetails: Decodable {
         let name: String?
         let username: String?
@@ -67,8 +67,26 @@ struct TMDBReview: Decodable {
     }
 }
 
+struct TMDBMovieDetails: Codable {
+    let id: Int
+    let title: String
+    let overview: String?
+    let posterPath: String?
+    let backdropPath: String?
+    let releaseDate: String?
+    let runtime: Int?
+    let genres: [TMDBGenre]?
+}
+
 struct TMDBTVDetails: Decodable {
     let id: Int
+    let name: String?
+    let overview: String?
+    let posterPath: String?
+    let backdropPath: String?
+    let firstAirDate: String?
+    let genres: [TMDBGenre]?
+    let voteAverage: Double?
     let numberOfSeasons: Int?
     let seasons: [TMDBSeasonSummary]?
 }

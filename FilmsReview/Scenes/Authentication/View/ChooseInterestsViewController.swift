@@ -39,6 +39,7 @@ final class ChooseInterestsViewController: UIViewController, ChooseInterestsVCPr
     private var allCategories: [String] = []
     private var filteredCategories: [String] = []
     private var selectedCategories: Set<String> = []
+    private var isLoading = false
     
     private let titleLabel: UILabel = {
         let l = UILabel()
@@ -94,6 +95,7 @@ final class ChooseInterestsViewController: UIViewController, ChooseInterestsVCPr
         button.titleLabel?.font = .montserrat(.bold, size: FontSize.subtitle)
         button.addTarget(self, action: #selector(didTapNext), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.isEnabled = false
         return button
     }()
     
@@ -112,6 +114,7 @@ final class ChooseInterestsViewController: UIViewController, ChooseInterestsVCPr
         navigationItem.hidesBackButton = true
         hideKeyboardWhenTappedAround()
         loadGenres()
+        updateNextButtonState()
     }
     
     private func setupUI() {
@@ -166,9 +169,10 @@ final class ChooseInterestsViewController: UIViewController, ChooseInterestsVCPr
     }
     
     func displayLoading(_ isLoading: Bool) {
+        self.isLoading = isLoading
         isLoading ? spinner.startAnimating() : spinner.stopAnimating()
         view.isUserInteractionEnabled = !isLoading
-        nextButton.alpha = isLoading ? Constants.Layout.nextButtonDisabledAlpha : Constants.Layout.nextButtonEnabledAlpha
+        updateNextButtonState()
     }
     
     func displayGenres(_ names: [String]) {
@@ -176,6 +180,16 @@ final class ChooseInterestsViewController: UIViewController, ChooseInterestsVCPr
         filteredCategories = names
         selectedCategories.removeAll()
         collectionView.reloadData()
+        updateNextButtonState()
+    }
+    
+    private func updateNextButtonState() {
+        let hasSelection = !selectedCategories.isEmpty
+        let enabled = hasSelection && !isLoading
+        nextButton.isEnabled = enabled
+        nextButton.alpha = enabled
+        ? Constants.Layout.nextButtonEnabledAlpha
+        : Constants.Layout.nextButtonDisabledAlpha
     }
 }
 
@@ -199,6 +213,7 @@ extension ChooseInterestsViewController: UICollectionViewDelegateFlowLayout, UIC
             selectedCategories.insert(category)
         }
         collectionView.reloadItems(at: [indexPath])
+        updateNextButtonState()
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,

@@ -89,10 +89,14 @@ final class MediaRowCell: UICollectionViewCell {
             playButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
             textStack.leadingAnchor.constraint(equalTo: posterView.trailingAnchor, constant: Constants.Text.leadingSpacing),
-            textStack.trailingAnchor.constraint(lessThanOrEqualTo: playButton.leadingAnchor, constant: -Constants.Text.trailingSpacing),
+            textStack.trailingAnchor.constraint(equalTo: playButton.leadingAnchor, constant: -Constants.Text.trailingSpacing),
             textStack.centerYAnchor.constraint(equalTo: posterView.centerYAnchor)
         ])
         
+        titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        textStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        textStack.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         playButton.addTarget(self, action: #selector(onTapPlay), for: .touchUpInside)
     }
     

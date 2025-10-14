@@ -43,7 +43,37 @@ final class AuthenticationWorkerTmdbTests: XCTestCase {
 private enum TestError: Error { case any }
 
 private struct TMDBServiceStub: TMDBServiceProtocol {
-    func trendingAll(window: TimeWindow) async throws -> [TMDBMultiDTO] {
+    let result: Result<[String], Error>
+
+    func tvDetails(id: Int, language: String) async throws -> TMDBTVDetails {
+        TMDBTVDetails(
+            id: id,
+            name: "Stub TV",
+            overview: nil,
+            posterPath: nil,
+            backdropPath: nil,
+            firstAirDate: nil,
+            genres: [],
+            voteAverage: nil,
+            numberOfSeasons: nil,
+            seasons: []
+        )
+    }
+    
+    func movieDetails(id: Int, language: String) async throws -> TMDBMovieDetails {
+        TMDBMovieDetails(
+            id: id,
+            title: "Stub Movie",
+            overview: nil,
+            posterPath: nil,
+            backdropPath: nil,
+            releaseDate: nil,
+            runtime: nil,
+            genres: []
+        )
+    }
+
+    func trendingAll(window: TimeWindow, page: Int) async throws -> [TMDBMultiDTO] {
         return []
     }
     
@@ -67,15 +97,9 @@ private struct TMDBServiceStub: TMDBServiceProtocol {
         return []
     }
     
-    func tvDetails(id: Int, language: String) async throws -> TMDBTVDetails {
-        return TMDBTVDetails(id: id, numberOfSeasons: nil, seasons: nil)
-    }
-    
     func tvSeason(id: Int, seasonNumber: Int, language: String) async throws -> TMDBSeasonDetails {
         return TMDBSeasonDetails(id: id, seasonNumber: seasonNumber, episodes: nil)
     }
-    
-    let result: Result<[String], Error>
 
     func genres(kind: TMDBMediaKind, language: String) async throws -> [TMDBGenre] {
         return []
@@ -83,6 +107,10 @@ private struct TMDBServiceStub: TMDBServiceProtocol {
 
     func mergedGenreNames(language: String) async throws -> [String] {
         return try result.get()
+    }
+
+    func searchMulti(query: String, page: Int, language: String) async throws -> [TMDBMultiDTO] {
+        return []
     }
 }
 

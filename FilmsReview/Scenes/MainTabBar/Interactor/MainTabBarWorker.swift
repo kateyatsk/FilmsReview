@@ -8,6 +8,8 @@
 //
 
 import Foundation
+import FirebaseFirestore
+import FirebaseAuth
 
 protocol MainTabBarWorkerProtocol {
     func fetchCast(for item: MediaItem) async throws -> [CastVM]
@@ -15,6 +17,8 @@ protocol MainTabBarWorkerProtocol {
     func fetchTVSeasonsSummary(tvId: Int) async throws -> (titles: [String], seasonNumbers: [Int])
     func fetchEpisodes(tvId: Int, seasonNumber: Int) async throws -> [EpisodeVM]
     func fetchSuggested(for item: MediaItem) async throws -> [MediaItem]
+    func fetchFavoriteStatus(for item: MediaItem) async -> Bool
+    func writeFavorite(isLiked: Bool, for item: MediaItem) async
 }
 
 fileprivate enum Constants {
@@ -205,5 +209,48 @@ final class MainTabBarWorker: MainTabBarWorkerProtocol {
         }
         
         return result
+    }
+    
+    func fetchFavoriteStatus(for item: MediaItem) async -> Bool {
+        guard
+            let uid = Auth.auth().currentUser?.uid,
+            let mediaType = normalizeMediaType(item.mediaType),
+            let id = normalizeTmdbId(item.tmdbId)
+        else { return false }
+        let key = FavoriteKey(mediaType: mediaType, id: id).raw
+        let ref = Firestore.firestore().collection("users").document(uid)
+        if let snapshot = try? await ref.getDocument(),
+           let favorites = snapshot.data()?["favorites"] as? [String] {
+            return favorites.contains(key)
+        }
+        return false
+    }
+
+    func writeFavorite(isLiked: Bool, for item: MediaItem) async {
+        guard
+            let uid = Auth.auth().currentUser?.uid,
+            let mediaType = normalizeMediaType(item.mediaType),
+            let id = normalizeTmdbId(item.tmdbId)
+        else { return }
+        let key = FavoriteKey(mediaType: mediaType, id: id).raw
+        let ref = Firestore.firestore().collection("users").document(uid)
+        _ = try? await ref.updateData([
+            "favorites": isLiked ? FieldValue.arrayUnion([key]) : FieldValue.arrayRemove([key])
+        ])
+    }
+
+    private func normalizeMediaType(_ rawType: String?) -> String? {
+        guard let rawType = rawType else { return nil }
+        return rawType.lowercased().contains("tv") ? "tv" : "movie"
+    }
+
+    private func normalizeTmdbId(_ rawId: Any?) -> Int? {
+        switch rawId {
+        case let intValue as Int: return intValue
+        case let optionalInt as Int?: return optionalInt
+        case let stringValue as String: return Int(stringValue)
+        case let optionalString as String?: return optionalString.flatMap(Int.init)
+        default: return nil
+        }
     }
 }

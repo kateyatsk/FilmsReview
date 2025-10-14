@@ -123,6 +123,10 @@ final class MovieHeaderView: UIView {
         makeCircleButton(symbol: Constants.Symbols.heart, tintColor: .buttonPrimary, backgroundColor: .white)
     }()
     
+    private var isLiked = false {
+           didSet { updateLikeAppearance() }
+       }
+
     private lazy var headerButtons: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [playButton, likeButton])
         stack.axis = .horizontal
@@ -140,11 +144,7 @@ final class MovieHeaderView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
-    
-    private var isLiked = false {
-        didSet { updateLikeAppearance() }
-    }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
@@ -280,5 +280,9 @@ final class MovieHeaderView: UIView {
         ])
         
         return button
+    }
+    
+    func setLiked(_ value: Bool) {
+        isLiked = value
     }
 }

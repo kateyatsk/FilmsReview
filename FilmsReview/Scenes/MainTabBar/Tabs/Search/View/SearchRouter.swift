@@ -12,7 +12,7 @@ import Swinject
 import UIKit
 
 protocol SearchRouterProtocol: RouterProtocol {
-    func navigateToDetail()
+    func openDetails(_ item: MediaItem, from: UIViewController)
 }
 
 final class SearchRouter: SearchRouterProtocol {
@@ -22,7 +22,9 @@ final class SearchRouter: SearchRouterProtocol {
         self.viewController = viewController
     }
 
-    func navigateToDetail() {
-        print("navigated to details")
+    func openDetails(_ item: MediaItem, from: UIViewController) {
+        guard let vc = DependencyContainer.shared.container.resolve(MovieDetailsViewController.self) else { return }
+        vc.viewModel = item
+        from.navigationController?.pushViewController(vc, animated: true)
     }
 }

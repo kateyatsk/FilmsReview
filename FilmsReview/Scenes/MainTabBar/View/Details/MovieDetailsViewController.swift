@@ -66,23 +66,28 @@ final class MovieDetailsViewController: UIViewController,
         
         suggestedSection.showSkeleton(style: .details)
         
-        if let item = viewModel {
-            (interactor as? MainTabBarInteractorProtocol)?.loadCast(for: item)
-            (interactor as? MainTabBarInteractorProtocol)?.loadReviews(for: item)
-            (interactor as? MainTabBarInteractorProtocol)?.loadSuggested(for: item)
-            
-            if item.mediaType == "tv" {
-                isEpisodesLoading = true
-                episodesSection.showLoadingPlaceholder()
-                episodesSection.showSeasonButtonSkeleton()
-                (interactor as? MainTabBarInteractorProtocol)?.loadTVInitial(for: item)
-            }
-        }
+        if let item = viewModel { loadInitialData(for: item) }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
+    private func loadInitialData(for item: MediaItem) {
+        (interactor as? MainTabBarInteractorProtocol)?.loadCast(for: item)
+        (interactor as? MainTabBarInteractorProtocol)?.loadReviews(for: item)
+        (interactor as? MainTabBarInteractorProtocol)?.loadSuggested(for: item)
+        (interactor as? MainTabBarInteractorProtocol)?.readFavoriteStatus(for: item) { [weak self] isLiked in
+            self?.headerView.setLiked(isLiked)
+        }
+        if item.mediaType == "tv" {
+            isEpisodesLoading = true
+            episodesSection.showLoadingPlaceholder()
+            episodesSection.showSeasonButtonSkeleton()
+            (interactor as? MainTabBarInteractorProtocol)?.loadTVInitial(for: item)
+        }
     }
     
     private func buildLayout() {
@@ -135,7 +140,11 @@ final class MovieDetailsViewController: UIViewController,
     private func wireActions() {
         headerView.onBack = { [weak self] in self?.navigationController?.popViewController(animated: true) }
         headerView.onPlay = { }
-        headerView.onLike = { _ in }
+        headerView.onLike = { [weak self] isLiked in
+            guard let self, let currentItem = self.viewModel else { return }
+            (self.interactor as? MainTabBarInteractorProtocol)?
+                .updateFavorite(isLiked: isLiked, for: currentItem)
+        }
         
         suggestedSection.delegate = self
         
@@ -257,7 +266,6 @@ final class MovieDetailsViewController: UIViewController,
     
     func updateSuggested(_ items: [MediaItem]) {
         if var vm = viewModel { vm.suggested = items; viewModel = vm }
-        
         suggestedSection.hideSkeleton()
         suggestedSection.items = items
     }
@@ -275,4 +283,20 @@ final class MovieDetailsViewController: UIViewController,
         if var vm = viewModel { vm.cast = cast; viewModel = vm }
         aboutSection.configure(overview: viewModel?.overview ?? "", cast: cast)
     }
+    
+    private func normalizedType(_ rawType: String?) -> String? {
+        guard let rawType = rawType else { return nil }
+        return rawType.lowercased().contains("tv") ? "tv" : "movie"
+    }
+
+    private func normalizedIdInt(_ rawId: Any?) -> Int? {
+        switch rawId {
+        case let intValue as Int: return intValue
+        case let optionalInt as Int?: return optionalInt
+        case let stringValue as String: return Int(stringValue)
+        case let optionalString as String?: return optionalString.flatMap(Int.init)
+        default: return nil
+        }
+    }
+    
 }

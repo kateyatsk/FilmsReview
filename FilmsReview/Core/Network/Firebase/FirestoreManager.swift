@@ -62,7 +62,7 @@ final class FirestoreManager {
             getDocument(at: path) { result in
                 switch result {
                 case .success(let data): continuation.resume(returning: data)
-                case .failure:           continuation.resume(returning: nil)
+                case .failure: continuation.resume(returning: nil)
                 }
             }
         }
@@ -79,7 +79,7 @@ final class FirestoreManager {
         }()
         
         let email = (data["email"] as? String) ?? ""
-        let name  = (data["name"]  as? String)?
+        let name = (data["name"]  as? String)?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let favoriteGenres = data["favoriteGenres"] as? [String]
         

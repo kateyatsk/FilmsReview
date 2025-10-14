@@ -15,6 +15,8 @@ protocol MainTabBarInteractorProtocol: InteractorProtocol {
     func loadSuggested(for item: MediaItem)
     func loadTVInitial(for item: MediaItem)
     func loadTVSeason(for item: MediaItem, seasonIndex: Int)
+    func readFavoriteStatus(for item: MediaItem, completion: @escaping (Bool) -> Void)
+    func updateFavorite(isLiked: Bool, for item: MediaItem)
 }
 
 final class MainTabBarInteractor: MainTabBarInteractorProtocol {
@@ -114,4 +116,16 @@ final class MainTabBarInteractor: MainTabBarInteractorProtocol {
             }
         }
     }
+    
+    func readFavoriteStatus(for item: MediaItem, completion: @escaping (Bool) -> Void) {
+        Task {
+            let isLiked = await worker.fetchFavoriteStatus(for: item)
+            await MainActor.run { completion(isLiked) }
+        }
+    }
+    
+    func updateFavorite(isLiked: Bool, for item: MediaItem) {
+        Task { await worker.writeFavorite(isLiked: isLiked, for: item) }
+    }
+    
 }

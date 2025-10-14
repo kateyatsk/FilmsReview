@@ -72,7 +72,7 @@ final class MainAssembly: Assembly {
             tab.selectedIndex = 0
             return tab
         }
-        .inObjectScope(.container)
+        .inObjectScope(.graph)
         
         
         container.register(MovieDetailsViewController.self) { resolver in
@@ -93,7 +93,6 @@ final class MainAssembly: Assembly {
             vc.router = mainRouter
             vc.interactor = interactor
            
-            
             return vc
         }
         .inObjectScope(.transient)

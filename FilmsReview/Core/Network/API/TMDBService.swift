@@ -20,8 +20,10 @@ protocol TMDBServiceProtocol {
     func movieReviews(id: Int, page: Int) async throws -> [TMDBReview]
     func tvReviews(id: Int, page: Int) async throws -> [TMDBReview]
     
+    func movieDetails(id: Int, language: String) async throws -> TMDBMovieDetails 
     func tvDetails(id: Int, language: String) async throws -> TMDBTVDetails
     func tvSeason(id: Int, seasonNumber: Int, language: String) async throws -> TMDBSeasonDetails
+    func searchMulti(query: String, page: Int, language: String) async throws -> [TMDBMultiDTO]
 }
 
 final class TMDBService: TMDBServiceProtocol {
@@ -117,6 +119,11 @@ final class TMDBService: TMDBServiceProtocol {
         return response.results
     }
     
+    func movieDetails(id: Int, language: String = "en-US") async throws -> TMDBMovieDetails {
+        let queryItems = [URLQueryItem(name: "language", value: language)]
+        return try await client.get("movie/\(id)", query: queryItems, timeout: nil)
+    }
+    
     func tvDetails(id: Int, language: String = "en-US") async throws -> TMDBTVDetails {
         let queryItems = [URLQueryItem(name: "language", value: language)]
         return try await client.get("tv/\(id)", query: queryItems, timeout: nil)
@@ -126,4 +133,39 @@ final class TMDBService: TMDBServiceProtocol {
         let queryItems = [URLQueryItem(name: "language", value: language)]
         return try await client.get("tv/\(id)/season/\(seasonNumber)", query: queryItems, timeout: nil)
     }
+
+    func searchMulti(query: String, page: Int, language: String = "en-US") async throws -> [TMDBMultiDTO] {
+        var queryItems: [URLQueryItem] = [
+            .init(name: "query", value: query),
+            .init(name: "page", value: String(max(1, page))),
+            .init(name: "include_adult", value: "false")
+        ]
+        if !language.isEmpty {
+            queryItems.append(.init(name: "language", value: language))
+        }
+
+        let pageResponse: Paged<TMDBMultiDTO> = try await client.get("search/multi",
+                                                                     query: queryItems,
+                                                                     timeout: nil)
+
+        let filtered = pageResponse.results.compactMap { dto -> TMDBMultiDTO? in
+            let inferredType = dto.mediaType ?? ((dto.firstAirDate != nil) ? "tv" : "movie")
+            guard inferredType == "movie" || inferredType == "tv" else { return nil }
+            return TMDBMultiDTO(
+                mediaType: inferredType,
+                id: dto.id,
+                title: dto.title,
+                name: dto.name,
+                overview: dto.overview,
+                posterPath: dto.posterPath,
+                releaseDate: dto.releaseDate,
+                firstAirDate: dto.firstAirDate,
+                backdropPath: dto.backdropPath,
+                genreIds: dto.genreIds
+            )
+        }
+        return filtered
+    }
+    
 }
+

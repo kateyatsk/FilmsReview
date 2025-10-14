@@ -10,21 +10,23 @@
 import UIKit
 
 protocol SearchPresenterProtocol: PresenterProtocol {
-    func prepareMoviesToBeDisplayed()
+    func presentTop(_ items: [MediaItem])
+    func presentResults(_ items: [MediaItem])
+    func presentError(_ error: Error)
 }
 
 final class SearchPresenter: SearchPresenterProtocol {
     weak var viewController: ViewControllerProtocol?
 
-    init(viewController: ViewControllerProtocol? = nil) {
-        self.viewController = viewController
+    func presentTop(_ items: [MediaItem]) {
+        (viewController as? SearchVCProtocol)?.displayTop(items: items)
     }
 
-    func prepareMoviesToBeDisplayed() {
-        print("Prepare movies to be displayed")
+    func presentResults(_ items: [MediaItem]) {
+        (viewController as? SearchVCProtocol)?.displayResults(items: items)
+    }
 
-        if let movieListVC = viewController as? SearchViewController {
-            movieListVC.updateMoviesTable()
-        }
+    func presentError(_ error: Error) {
+        (viewController as? SearchVCProtocol)?.displayError(error)
     }
 }

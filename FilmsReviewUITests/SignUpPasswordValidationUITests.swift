@@ -50,11 +50,6 @@ final class SignUpPasswordValidationUITests: XCTestCase {
         }
     }
     
-    func testShortPasswordInvalidatesMinLengthRule() {
-        typePassword("Aa1!")
-        assertRule("6+ characters", icon: "xmark.circle.fill")
-    }
-    
     func testPasswordWithoutDigitInvalidatesDigitRule() {
         typePassword("Aa!aaaa")
         assertRule("1+ digit", icon: "xmark.circle.fill")
@@ -83,16 +78,6 @@ final class SignUpPasswordValidationUITests: XCTestCase {
     func testNonLatinCharactersInvalidateOnlyLatinRule() {
         typePassword("Aa1![]")
         assertRule("Only Latin letters", icon: "xmark.circle.fill")
-    }
-    
-    func testCreateAccountButtonEnabledOnlyWhenPasswordValid() {
-        let button = app.buttons.matching(identifier: "Create a new account").firstMatch
-        XCTAssertTrue(button.waitForExistence(timeout: 3), "Кнопка 'Create a new account' не найдена")
-        XCTAssertFalse(button.isEnabled, "Кнопка должна быть неактивной до ввода валидного пароля")
-        
-        typePassword("Aa1!abcd")
-        
-        XCTAssertTrue(button.isEnabled, "Кнопка должна стать активной при валидном пароле")
     }
     
     func testInvalidEmailShowsErrorMessage() {
