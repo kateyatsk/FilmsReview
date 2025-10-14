@@ -16,12 +16,13 @@ protocol HomeWorkerProtocol {
     func loadTopSearches(page: Int) async throws -> [MediaItem]
 }
 
-private enum Constants {
+fileprivate enum Constants {
     static let languageENUS = "en-US"
     static let unknownTitle = "Untitled"
     static let yearPrefixLength = 4
     static let recommendedGenresLimit = 3
     static let topSearchGenresLimit = 2
+    static let fallbackGenresCount = 5
 }
 
 final class HomeWorker: HomeWorkerProtocol {
@@ -43,8 +44,15 @@ final class HomeWorker: HomeWorkerProtocol {
             let set = Set(names.map { $0.lowercased() })
             return all.filter { set.contains($0.name.lowercased()) }.map(\.id)
         }
-        let movieIDs = ids(userPreferredGenres, in: movieGenres)
-        let tvIDs = ids(userPreferredGenres, in: tvGenres)
+        
+        let chosenGenreNames: [String] = {
+            guard userPreferredGenres.isEmpty else { return userPreferredGenres }
+            let allNames = Array(Set((movieGenres + tvGenres).map { $0.name }))
+            return Array(allNames.shuffled().prefix(Constants.fallbackGenresCount))
+        }()
+        
+        let movieIDs = ids(chosenGenreNames, in: movieGenres)
+        let tvIDs = ids(chosenGenreNames, in: tvGenres)
         
         let mixed = try await tmdbService.discoverMoviesAndTv(
             movieGenreIDs: movieIDs,
@@ -95,13 +103,13 @@ final class HomeWorker: HomeWorkerProtocol {
     
     func loadTopSearches(page: Int) async throws -> [MediaItem] {
         let mixed = try await tmdbService.trendingAll(window: .day, page: page)
-
+        
         async let movieGenresTask = tmdbService.genres(kind: .movie, language: Constants.languageENUS)
         async let tvGenresTask = tmdbService.genres(kind: .tv, language: Constants.languageENUS)
         let (movieGenres, tvGenres) = try await (movieGenresTask, tvGenresTask)
         let movieDict = Dictionary(uniqueKeysWithValues: movieGenres.map { ($0.id, $0.name) })
         let tvDict = Dictionary(uniqueKeysWithValues: tvGenres.map { ($0.id, $0.name) })
-
+        
         var items: [MediaItem] = []
         for dto in mixed {
             let title = dto.title ?? dto.name ?? Constants.unknownTitle
@@ -109,7 +117,7 @@ final class HomeWorker: HomeWorkerProtocol {
             let backdrop = await images.load(
                 TMDBImages.backdropURL(dto.backdropPath) ?? TMDBImages.posterURL(dto.backdropPath)
             )
-
+            
             let releaseYear: String? = {
                 if let dateString = dto.releaseDate {
                     return String(dateString.prefix(Constants.yearPrefixLength))
@@ -119,13 +127,13 @@ final class HomeWorker: HomeWorkerProtocol {
                 }
                 return nil
             }()
-
+            
             let chips: [MetaChip] = releaseYear.map { [.year($0)] } ?? []
-
+            
             let genreDict = (dto.mediaType == "tv") ? tvDict : movieDict
             let genres = (dto.genreIds ?? []).compactMap { genreDict[$0] }
             let subtitle = genres.isEmpty ? "" : genres.prefix(Constants.topSearchGenresLimit).joined(separator: ", ")
-
+            
             items.append(.init(
                 title: title,
                 subtitle: subtitle,

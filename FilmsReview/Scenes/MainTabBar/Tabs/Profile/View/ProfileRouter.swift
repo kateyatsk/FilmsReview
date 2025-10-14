@@ -7,22 +7,19 @@
 //
 //
 
-import Foundation
-import Swinject
 import UIKit
+import FirebaseAuth
 
 protocol ProfileRouterProtocol: RouterProtocol {
-    func navigateToDetail()
+    func routeToAuth()
 }
 
 final class ProfileRouter: ProfileRouterProtocol {
     weak var viewController: (any ViewControllerProtocol)?
 
-    init(viewController: ViewControllerProtocol? = nil) {
-        self.viewController = viewController
-    }
-
-    func navigateToDetail() {
-        print("navigated to details")
+    func routeToAuth() {
+        try? Auth.auth().signOut()
+        AppSettings.isAuthorized = false
+        AppRouter.updateRootViewController()
     }
 }
