@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8B8CC0DC2E0ED13D00080537 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8B8CC0DB2E0ED13D00080537 /* GoogleService-Info.plist */; };
+		8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0DE2E0ED19300080537 /* FirebaseAuth */; };
+		8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8CC0E02E0ED19300080537 /* FirebaseCore */; };
+		8B919F4D2E3BA9EB00C58030 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */; };
+		8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCC5BEB2E0C821600F092EF /* Swinject */; };
+		B141A2FA2E43F70D00A51EAB /* Cloudinary in Frameworks */ = {isa = PBXBuildFile; productRef = B141A2F92E43F70D00A51EAB /* Cloudinary */; };
+		B16F22192E2A4A11001FF003 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B16F22182E2A4A11001FF003 /* Lottie */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B13A80E72E09935A00131ADC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8B8CC0DB2E0ED13D00080537 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B13A80D02E09935600131ADC /* FilmsReview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FilmsReview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13A80E62E09935A00131ADC /* FilmsReviewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FilmsReviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13A80F02E09935A00131ADC /* FilmsReviewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FilmsReviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -65,6 +76,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BCC5BEC2E0C821600F092EF /* Swinject in Frameworks */,
+				8B919F4D2E3BA9EB00C58030 /* FirebaseFirestore in Frameworks */,
+				B141A2FA2E43F70D00A51EAB /* Cloudinary in Frameworks */,
+				8B8CC0E12E0ED19300080537 /* FirebaseCore in Frameworks */,
+				8B8CC0DF2E0ED19300080537 /* FirebaseAuth in Frameworks */,
+				B16F22192E2A4A11001FF003 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +109,7 @@
 				B13A80E92E09935A00131ADC /* FilmsReviewTests */,
 				B13A80F32E09935A00131ADC /* FilmsReviewUITests */,
 				B13A80D12E09935600131ADC /* Products */,
+				8B8CC0DB2E0ED13D00080537 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -125,6 +143,12 @@
 			);
 			name = FilmsReview;
 			packageProductDependencies = (
+				8BCC5BEB2E0C821600F092EF /* Swinject */,
+				8B8CC0DE2E0ED19300080537 /* FirebaseAuth */,
+				8B8CC0E02E0ED19300080537 /* FirebaseCore */,
+				B16F22182E2A4A11001FF003 /* Lottie */,
+				8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */,
+				B141A2F92E43F70D00A51EAB /* Cloudinary */,
 			);
 			productName = FilmsReview;
 			productReference = B13A80D02E09935600131ADC /* FilmsReview.app */;
@@ -208,6 +232,12 @@
 			);
 			mainGroup = B13A80C72E09935600131ADC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */,
+				8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B16F22172E2A4A11001FF003 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				B141A2F82E43F70D00A51EAB /* XCRemoteSwiftPackageReference "cloudinary_ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B13A80D12E09935600131ADC /* Products */;
 			projectDirPath = "";
@@ -225,6 +255,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B8CC0DC2E0ED13D00080537 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,8 +325,9 @@
 				INFOPLIST_FILE = FilmsReview/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -303,9 +335,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.yatskevitch.FilmsReview;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -321,8 +357,9 @@
 				INFOPLIST_FILE = FilmsReview/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -330,9 +367,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.yatskevitch.FilmsReview;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -569,6 +610,74 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
+		8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Swinject/Swinject";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.1;
+			};
+		};
+		B141A2F82E43F70D00A51EAB /* XCRemoteSwiftPackageReference "cloudinary_ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cloudinary/cloudinary_ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.2;
+			};
+		};
+		B16F22172E2A4A11001FF003 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8B8CC0DE2E0ED19300080537 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		8B8CC0E02E0ED19300080537 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		8B919F4C2E3BA9EB00C58030 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B8CC0DD2E0ED19300080537 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		8BCC5BEB2E0C821600F092EF /* Swinject */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8BCC5BEA2E0C821600F092EF /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = Swinject;
+		};
+		B141A2F92E43F70D00A51EAB /* Cloudinary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B141A2F82E43F70D00A51EAB /* XCRemoteSwiftPackageReference "cloudinary_ios" */;
+			productName = Cloudinary;
+		};
+		B16F22182E2A4A11001FF003 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B16F22172E2A4A11001FF003 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B13A80C82E09935600131ADC /* Project object */;
 }
