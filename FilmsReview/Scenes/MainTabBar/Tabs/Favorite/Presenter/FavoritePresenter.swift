@@ -10,21 +10,18 @@
 import UIKit
 
 protocol FavoritePresenterProtocol: PresenterProtocol {
-    func prepareMoviesToBeDisplayed()
+    func setLoading(_ loading: Bool)
+    func present(items: [MediaItem])
 }
 
 final class FavoritePresenter: FavoritePresenterProtocol {
     weak var viewController: ViewControllerProtocol?
 
-    init(viewController: ViewControllerProtocol? = nil) {
-        self.viewController = viewController
+    func setLoading(_ loading: Bool) {
+        (viewController as? FavoriteVCProtocol)?.setLoading(loading)
     }
 
-    func prepareMoviesToBeDisplayed() {
-        print("Prepare movies to be displayed")
-
-        if let movieListVC = viewController as? FavoriteViewController {
-            movieListVC.updateMoviesTable()
-        }
+    func present(items: [MediaItem]) {
+        (viewController as? FavoriteVCProtocol)?.show(items: items)
     }
 }

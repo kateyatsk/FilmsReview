@@ -18,7 +18,7 @@ class DependencyContainer {
 
     private func registerDependencies() {
         let assembler = Assembler([
-            MovieListAssembly(),
+            CoreAssembly(),
             OnboardingAssembly(),
             AuthenticationAssembly(),
             HomeAssembly(),

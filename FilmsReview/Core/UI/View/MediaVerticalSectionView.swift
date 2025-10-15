@@ -13,10 +13,25 @@ fileprivate enum Constants {
         static let insets = UIEdgeInsets(top: 12, left: 0, bottom: 0, right: 0)
         static let gapTitleToCollection: CGFloat = 12
     }
-    
+
     enum Text {
-        static let defaultTitle = "Section"
+        static let defaultTitle = "Top Searches"
         static let seeAll = "See All"
+    }
+
+    enum Skeleton {
+        static let rowCount = 5
+        static let containerHeight: CGFloat = 100
+        static let firstRowTop: CGFloat = 20
+        static let rowVerticalStep: CGFloat = 110
+
+        static let posterLeading: CGFloat = 12
+        static let posterWidthMultiplier: CGFloat = 0.3
+
+        static let textLeadingToPoster: CGFloat = 12
+        static let textTop: CGFloat = 20
+        static let textTrailing: CGFloat = -12
+        static let textHeight: CGFloat = 16
     }
 }
 
@@ -109,7 +124,7 @@ final class MediaVerticalSectionView: UIView,
             collectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Constants.Layout.gapTitleToCollection),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
@@ -144,4 +159,74 @@ final class MediaVerticalSectionView: UIView,
     func collectionView(_ cv: UICollectionView, layout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         .init(width: cv.bounds.width, height: Constants.Layout.itemHeight)
     }
+}
+
+extension MediaVerticalSectionView {
+    func showSkeleton() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.items = []
+            self.collectionView.isHidden = true
+
+            for i in 0..<Constants.Skeleton.rowCount {
+                let container = UIView()
+                container.translatesAutoresizingMaskIntoConstraints = false
+                container.backgroundColor = .systemGray6
+                container.layer.cornerRadius = CornerRadius.m
+                self.addSubview(container)
+
+                let poster = SkeletonView()
+                let text = SkeletonView()
+                [poster, text].forEach {
+                    $0.translatesAutoresizingMaskIntoConstraints = false
+                    container.addSubview($0)
+                    $0.startShimmer()
+                }
+
+                NSLayoutConstraint.activate([
+                    container.topAnchor.constraint(
+                        equalTo: self.titleLabel.bottomAnchor,
+                        constant: CGFloat(i) * Constants.Skeleton.rowVerticalStep + Constants.Skeleton.firstRowTop
+                    ),
+                    container.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                    container.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                    container.heightAnchor.constraint(equalToConstant: Constants.Skeleton.containerHeight),
+
+                    poster.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: Constants.Skeleton.posterLeading),
+                    poster.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+                    poster.widthAnchor.constraint(equalTo: container.widthAnchor, multiplier: Constants.Skeleton.posterWidthMultiplier),
+                    poster.heightAnchor.constraint(equalTo: poster.widthAnchor, multiplier: PosterAspect.h9x16.hOverW),
+
+                    text.leadingAnchor.constraint(equalTo: poster.trailingAnchor, constant: Constants.Skeleton.textLeadingToPoster),
+                    text.topAnchor.constraint(equalTo: container.topAnchor, constant: Constants.Skeleton.textTop),
+                    text.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: Constants.Skeleton.textTrailing),
+                    text.heightAnchor.constraint(equalToConstant: Constants.Skeleton.textHeight)
+                ])
+            }
+        }
+    }
+
+    func hideSkeleton() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.collectionView.isHidden = false
+            self.subviews
+                .filter { $0 is SkeletonView || $0.backgroundColor == .systemGray6 }
+                .forEach {
+                    ( $0 as? SkeletonView )?.stopShimmer()
+                    $0.removeFromSuperview()
+                }
+        }
+    }
+
+    
+
+    func setScrollable(_ enabled: Bool) {
+         collectionView.isScrollEnabled = enabled
+         collectionHeightConstraint.isActive = !enabled
+         if !enabled { updateHeight() }
+     }
+
+     func setTitle(_ text: String) { titleLabel.text = text }
+     func setShowsSeeAll(_ show: Bool) { seeAllButton.isHidden = !show }
 }

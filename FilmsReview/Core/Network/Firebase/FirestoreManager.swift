@@ -56,4 +56,47 @@ final class FirestoreManager {
             }
         }
     }
+    
+    func getDocumentAsync(at path: String) async -> [String: Any]? {
+        await withCheckedContinuation { continuation in
+            getDocument(at: path) { result in
+                switch result {
+                case .success(let data): continuation.resume(returning: data)
+                case .failure: continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+    
+    func fetchUserProfile(uid: String) async -> UserProfile? {
+        guard !uid.isEmpty,
+              let data = await getDocumentAsync(at: "users/\(uid)") else { return nil }
+        
+        let birthday: Date = {
+            if let ts = data["birthday"] as? Timestamp { return ts.dateValue() }
+            if let t  = data["birthday"] as? TimeInterval { return Date(timeIntervalSince1970: t) }
+            return Date(timeIntervalSince1970: 0)
+        }()
+        
+        let email = (data["email"] as? String) ?? ""
+        let name = (data["name"]  as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let favoriteGenres = data["favoriteGenres"] as? [String]
+        
+        let avatarURL: URL? = {
+            if let s = data["avatarURL"] as? String { return URL(string: s) }
+            if let s = data["avatarUrl"] as? String { return URL(string: s) }
+            return nil
+        }()
+        
+        return UserProfile(
+            uid: uid,
+            email: email,
+            name: name,
+            birthday: birthday,
+            avatarURL: avatarURL,
+            favoriteGenres: favoriteGenres
+        )
+    }
+    
 }

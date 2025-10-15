@@ -76,6 +76,16 @@ final class MovieHeaderView: UIView {
         return label
     }()
     
+    private let genresLabel: UILabel = {
+        let label = UILabel()
+        label.font = .montserrat(.regular, size: 14)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .center
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let overviewLabel: UILabel = {
         let label = UILabel()
         label.font = .montserrat(.regular, size: FontSize.caption)
@@ -113,6 +123,10 @@ final class MovieHeaderView: UIView {
         makeCircleButton(symbol: Constants.Symbols.heart, tintColor: .buttonPrimary, backgroundColor: .white)
     }()
     
+    private var isLiked = false {
+           didSet { updateLikeAppearance() }
+       }
+
     private lazy var headerButtons: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [playButton, likeButton])
         stack.axis = .horizontal
@@ -130,11 +144,7 @@ final class MovieHeaderView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
-    
-    private var isLiked = false {
-        didSet { updateLikeAppearance() }
-    }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
@@ -148,6 +158,7 @@ final class MovieHeaderView: UIView {
             overlayView,
             backButton,
             titleLabel,
+            genresLabel,
             overviewLabel,
             metaStack,
             headerButtons
@@ -169,7 +180,11 @@ final class MovieHeaderView: UIView {
             
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Spacing.xs3),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Spacing.xs3),
-            titleLabel.bottomAnchor.constraint(equalTo: overviewLabel.topAnchor, constant: -Spacing.xs5),
+            titleLabel.bottomAnchor.constraint(equalTo: genresLabel.topAnchor, constant: -Spacing.xs3),
+            
+            genresLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            genresLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            genresLabel.bottomAnchor.constraint(equalTo: overviewLabel.topAnchor, constant: -Spacing.xs5),
             
             overviewLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             overviewLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
@@ -188,19 +203,20 @@ final class MovieHeaderView: UIView {
     func configure(poster: UIImage?, title: String, overview: String, metaChips: [MetaChip]) {
         posterView.image = poster
         titleLabel.text = title
+        
         let firstSentence: String
         if let dotRange = overview.firstIndex(of: ".") {
-            let substring = overview[..<dotRange]
-            firstSentence = substring.trimmingCharacters(in: .whitespacesAndNewlines) + "."
+            firstSentence = overview[..<dotRange].trimmingCharacters(in: .whitespacesAndNewlines) + "."
         } else {
             firstSentence = overview
         }
         overviewLabel.text = firstSentence
         
         metaStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        metaChips.forEach { chip in
-            metaStack.addArrangedSubview(makeChip(text: chip.text, image: chip.icon))
-        }
+        metaChips.forEach { metaStack.addArrangedSubview(makeChip(text: $0.text, image: $0.icon)) }
+        
+        setNeedsLayout()
+        layoutIfNeeded()
     }
     
     @objc private func onBackTap() { onBack?() }
@@ -264,5 +280,9 @@ final class MovieHeaderView: UIView {
         ])
         
         return button
+    }
+    
+    func setLiked(_ value: Bool) {
+        isLiked = value
     }
 }

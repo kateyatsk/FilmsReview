@@ -10,40 +10,162 @@ import Foundation
 protocol TMDBServiceProtocol {
     func genres(kind: TMDBMediaKind, language: String) async throws -> [TMDBGenre]
     func mergedGenreNames(language: String) async throws -> [String]
+    
+    func trendingAll(window: TimeWindow, page: Int) async throws -> [TMDBMultiDTO]
+    func discoverMoviesAndTv(movieGenreIDs: [Int], tvGenreIDs: [Int], page: Int) async throws -> [TMDBMultiDTO]
+    
+    func movieCredits(id: Int) async throws -> TMDBCredits
+    func tvCredits(id: Int) async throws -> TMDBCredits
+    
+    func movieReviews(id: Int, page: Int) async throws -> [TMDBReview]
+    func tvReviews(id: Int, page: Int) async throws -> [TMDBReview]
+    
+    func movieDetails(id: Int, language: String) async throws -> TMDBMovieDetails 
+    func tvDetails(id: Int, language: String) async throws -> TMDBTVDetails
+    func tvSeason(id: Int, seasonNumber: Int, language: String) async throws -> TMDBSeasonDetails
+    func searchMulti(query: String, page: Int, language: String) async throws -> [TMDBMultiDTO]
 }
 
 final class TMDBService: TMDBServiceProtocol {
     private let client: APIClientProtocol
-
+    
     init(client: APIClientProtocol) { self.client = client }
-
+    
     func genres(kind: TMDBMediaKind, language: String) async throws -> [TMDBGenre] {
-        let q = [URLQueryItem(name: "language", value: language)]
-        let dto: TMDBGenreListResponse = try await client.get(kind.path, query: q, timeout: nil)
-        return dto.genres
+        let queryItems = [URLQueryItem(name: "language", value: language)]
+        let response: TMDBGenreListResponse = try await client.get(kind.genreListPath, query: queryItems, timeout: nil)
+        return response.genres
     }
-
+    
     func mergedGenreNames(language: String) async throws -> [String] {
-        async let movie = genres(kind: .movie, language: language)
-        async let tv = genres(kind: .tv, language: language)
-        let (m, t) = try await (movie, tv)
+        async let movieGenres = genres(kind: .movie, language: language)
+        async let tvGenres = genres(kind: .tv, language: language)
+        let (movieGenresList, tvGenresList) = try await (movieGenres, tvGenres)
 
-        let all = m.map(\.name) + t.map(\.name)
-
+        let combinedNames = movieGenresList.map(\.name) + tvGenresList.map(\.name)
+        
         var seen = Set<String>()
         var unique: [String] = []
-
-        for name in all {
+        
+        for name in combinedNames {
             let key = name.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
             if !seen.contains(key) {
                 seen.insert(key)
-                let capitalized = name.prefix(1).uppercased() + name.dropFirst().lowercased()
-                unique.append(capitalized)
+                let normalized = name.prefix(1).uppercased() + name.dropFirst().lowercased()
+                unique.append(normalized)
             }
         }
-
+        
         return unique.sorted {
             $0.localizedCaseInsensitiveCompare($1) == .orderedAscending
         }
     }
+    
+    func trendingAll(window: TimeWindow, page: Int) async throws -> [TMDBMultiDTO] {
+        let queryItems = [URLQueryItem(name: "page", value: String(max(1, page)))]
+        let pageResponse: Paged<TMDBMultiDTO> = try await client.get("trending/all/\(window.rawValue)", query: queryItems, timeout: nil)
+        return pageResponse.results.filter { $0.mediaType == "movie" || $0.mediaType == "tv" }
+    }
+    
+    func discover(kind: TMDBMediaKind, genreIDs: [Int], page: Int = 1) async throws -> [TMDBMultiDTO] {
+        var queryItems: [URLQueryItem] = [.init(name: "page", value: String(max(1, page)))]
+        if !genreIDs.isEmpty {
+            queryItems.append(.init(name: "with_genres", value: genreIDs.map(String.init).joined(separator: ",")))
+        }
+        
+        let pageResponse: Paged<TMDBMultiDTO> = try await client.get(kind.discoverPath, query: queryItems, timeout: nil)
+        
+        let mediaTag = (kind == .movie) ? "movie" : "tv"
+        return pageResponse.results.map { item in
+            TMDBMultiDTO(
+                mediaType: item.mediaType ?? mediaTag,
+                id: item.id,
+                title: item.title,
+                name: item.name,
+                overview: item.overview,
+                posterPath: item.posterPath,
+                releaseDate: item.releaseDate,
+                firstAirDate: item.firstAirDate,
+                backdropPath: item.backdropPath,
+                genreIds: item.genreIds
+            )
+        }
+    }
+    
+    func discoverMoviesAndTv(movieGenreIDs: [Int], tvGenreIDs: [Int], page: Int = 1) async throws -> [TMDBMultiDTO] {
+        async let movies  = discover(kind: .movie, genreIDs: movieGenreIDs, page: page)
+        async let tvShows = discover(kind: .tv, genreIDs: tvGenreIDs,    page: page)
+        let (movieResults, tvResults) = try await (movies, tvShows)
+        return movieResults + tvResults
+    }
+    
+    func movieCredits(id: Int) async throws -> TMDBCredits {
+        try await client.get("movie/\(id)/credits", query: [], timeout: nil)
+    }
+    
+    func tvCredits(id: Int) async throws -> TMDBCredits {
+        try await client.get("tv/\(id)/credits", query: [], timeout: nil)
+    }
+    
+    func movieReviews(id: Int, page: Int = 1) async throws -> [TMDBReview] {
+        let queryItems = [URLQueryItem(name: "page", value: String(max(1, page)))]
+        let response: TMDBReviewResponse = try await client.get("movie/\(id)/reviews", query: queryItems, timeout: nil)
+        return response.results
+    }
+    
+    func tvReviews(id: Int, page: Int = 1) async throws -> [TMDBReview] {
+        let queryItems = [URLQueryItem(name: "page", value: String(max(1, page)))]
+        let response: TMDBReviewResponse = try await client.get("tv/\(id)/reviews", query: queryItems, timeout: nil)
+        return response.results
+    }
+    
+    func movieDetails(id: Int, language: String = "en-US") async throws -> TMDBMovieDetails {
+        let queryItems = [URLQueryItem(name: "language", value: language)]
+        return try await client.get("movie/\(id)", query: queryItems, timeout: nil)
+    }
+    
+    func tvDetails(id: Int, language: String = "en-US") async throws -> TMDBTVDetails {
+        let queryItems = [URLQueryItem(name: "language", value: language)]
+        return try await client.get("tv/\(id)", query: queryItems, timeout: nil)
+    }
+    
+    func tvSeason(id: Int, seasonNumber: Int, language: String = "en-US") async throws -> TMDBSeasonDetails {
+        let queryItems = [URLQueryItem(name: "language", value: language)]
+        return try await client.get("tv/\(id)/season/\(seasonNumber)", query: queryItems, timeout: nil)
+    }
+
+    func searchMulti(query: String, page: Int, language: String = "en-US") async throws -> [TMDBMultiDTO] {
+        var queryItems: [URLQueryItem] = [
+            .init(name: "query", value: query),
+            .init(name: "page", value: String(max(1, page))),
+            .init(name: "include_adult", value: "false")
+        ]
+        if !language.isEmpty {
+            queryItems.append(.init(name: "language", value: language))
+        }
+
+        let pageResponse: Paged<TMDBMultiDTO> = try await client.get("search/multi",
+                                                                     query: queryItems,
+                                                                     timeout: nil)
+
+        let filtered = pageResponse.results.compactMap { dto -> TMDBMultiDTO? in
+            let inferredType = dto.mediaType ?? ((dto.firstAirDate != nil) ? "tv" : "movie")
+            guard inferredType == "movie" || inferredType == "tv" else { return nil }
+            return TMDBMultiDTO(
+                mediaType: inferredType,
+                id: dto.id,
+                title: dto.title,
+                name: dto.name,
+                overview: dto.overview,
+                posterPath: dto.posterPath,
+                releaseDate: dto.releaseDate,
+                firstAirDate: dto.firstAirDate,
+                backdropPath: dto.backdropPath,
+                genreIds: dto.genreIds
+            )
+        }
+        return filtered
+    }
+    
 }
+

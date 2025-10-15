@@ -165,7 +165,7 @@ private final class SeasonCell: UICollectionViewCell {
     }()
     
     private let checkmark: UIImageView = {
-        let view = UIImageView(image: UIImage(systemName: "checkmark"))
+        let view = UIImageView(image: UIImage(systemName: Constants.Cell.checkmarkSystemName))
         view.translatesAutoresizingMaskIntoConstraints = false
         view.tintColor = .buttonPrimary
         view.isHidden = true

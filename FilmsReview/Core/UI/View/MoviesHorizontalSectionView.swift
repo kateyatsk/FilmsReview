@@ -22,6 +22,19 @@ fileprivate enum Constants {
         static let seeAll = "See All"
         static let genresFontSize: CGFloat = 14
     }
+    
+    enum Skeleton {
+        static let count = 5
+        static let topToTitle: CGFloat = 12
+        
+        static let homeLeadingStep: CGFloat = 200
+        static let homeWidth: CGFloat = 180
+        static let homeHeightInset: CGFloat = 40
+        
+        static let detailsLeadingStep: CGFloat = 130
+        static let detailsWidth: CGFloat = 120
+        static let detailsHeightInset: CGFloat = 56
+    }
 }
 
 protocol MoviesSectionViewDelegate: AnyObject {
@@ -155,7 +168,7 @@ final class MoviesHorizontalSectionView: UIView,
     func collectionView(_ c: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = c.dequeueReusableCell(withReuseIdentifier: MovieCardCell.reuseId, for: indexPath) as! MovieCardCell
         let vm = items[indexPath.item]
-        cell.configure(title: vm.title, genres: vm.genres, poster: vm.poster)
+        cell.configure(title: vm.title, genres: vm.subtitle, poster: vm.poster)
         return cell
     }
     
@@ -167,3 +180,44 @@ final class MoviesHorizontalSectionView: UIView,
         fixedItemSize()
     }
 }
+
+extension MoviesHorizontalSectionView {
+    func showSkeleton(style: SkeletonStyle = .home) {
+        items = []
+        collectionView.isUserInteractionEnabled = false
+        hideSkeleton()
+        
+        let leadingStep = (style == .details) ? Constants.Skeleton.detailsLeadingStep  : Constants.Skeleton.homeLeadingStep
+        let itemWidth = (style == .details) ? Constants.Skeleton.detailsWidth : Constants.Skeleton.homeWidth
+        let heightInset = (style == .details) ? Constants.Skeleton.detailsHeightInset : Constants.Skeleton.homeHeightInset
+        let itemHeight = rowHeight - heightInset
+        
+        for i in 0..<Constants.Skeleton.count {
+            let skeleton = SkeletonView()
+            skeleton.translatesAutoresizingMaskIntoConstraints = false
+            skeleton.layer.cornerRadius = CornerRadius.m
+            addSubview(skeleton)
+            
+            NSLayoutConstraint.activate([
+                skeleton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor,
+                                              constant: Constants.Skeleton.topToTitle),
+                skeleton.leadingAnchor.constraint(equalTo: leadingAnchor,
+                                                  constant: CGFloat(i) * leadingStep),
+                skeleton.widthAnchor.constraint(equalToConstant: itemWidth),
+                skeleton.heightAnchor.constraint(equalToConstant: itemHeight)
+            ])
+            
+            skeleton.startShimmer()
+        }
+    }
+    
+    func hideSkeleton() {
+        collectionView.isUserInteractionEnabled = true
+        subviews.compactMap { $0 as? SkeletonView }.forEach {
+            $0.stopShimmer()
+            $0.removeFromSuperview()
+        }
+    }
+}
+
+enum SkeletonStyle { case home, details }

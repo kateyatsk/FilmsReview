@@ -113,6 +113,7 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
     private lazy var confirmPasswordField: UITextField = {
         let field = makeSecureField(placeholder: Constants.Text.passwordPlaceholder)
         field.addTarget(self, action: #selector(editingBegan(_:)), for: .editingDidBegin)
+        field.addTarget(self, action: #selector(confirmChanged(_:)), for: .editingChanged)
         return field
     }()
     
@@ -408,8 +409,15 @@ final class SignUpViewController: UIViewController, SignUpVCProtocol, UITextFiel
     
     private func updateCreateButtonState() {
         let allValid = validationDelegate.rulesState.values.allSatisfy { $0 }
-        createAccountButton.isEnabled = allValid
-        createAccountButton.alpha = allValid ? Constants.Opacity.enable : Constants.Opacity.disable
+        let hasConfirmText = !(confirmPasswordField.text ?? "").isEmpty
+        let enabled = allValid && hasConfirmText && !isSubmitting
+        
+        createAccountButton.isEnabled = enabled
+        createAccountButton.alpha = enabled ? Constants.Opacity.enable : Constants.Opacity.disable
+    }
+    
+    @objc private func confirmChanged(_ sender: UITextField) {
+        updateCreateButtonState()
     }
     
     private func registerKeyboardNotifications() {

@@ -82,18 +82,21 @@ final class MediaRowCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             posterView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             posterView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            posterView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -Spacing.xs4),
             posterView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: Constants.Poster.widthMultiplier),
-            posterView.heightAnchor.constraint(equalTo: posterView.widthAnchor, multiplier: PosterAspect.h4x3.hOverW),
+            posterView.heightAnchor.constraint(equalTo: posterView.widthAnchor, multiplier: PosterAspect.h9x16.hOverW),
             
             playButton.centerYAnchor.constraint(equalTo: posterView.centerYAnchor),
             playButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             
             textStack.leadingAnchor.constraint(equalTo: posterView.trailingAnchor, constant: Constants.Text.leadingSpacing),
-            textStack.trailingAnchor.constraint(lessThanOrEqualTo: playButton.leadingAnchor, constant: -Constants.Text.trailingSpacing),
+            textStack.trailingAnchor.constraint(equalTo: playButton.leadingAnchor, constant: -Constants.Text.trailingSpacing),
             textStack.centerYAnchor.constraint(equalTo: posterView.centerYAnchor)
         ])
         
+        titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        textStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        textStack.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         playButton.addTarget(self, action: #selector(onTapPlay), for: .touchUpInside)
     }
     
@@ -109,7 +112,7 @@ final class MediaRowCell: UICollectionViewCell {
     func configure(with item: MediaItem) {
         titleLabel.text = item.title
         subtitleLabel.text = item.subtitle
-        posterView.image = item.poster
+        posterView.image = item.backdrop ?? item.poster
     }
     
     @objc private func onTapPlay() { onPlay?() }
