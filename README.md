@@ -70,7 +70,6 @@ Each scene (screen) consists of the following components:
 The project has good test coverage.
 
 * Unit Tests: Cover Interactors, Presenters, and Workers (focusing on authentication logic and validation).
-    * Run: Cmd + U
 * UI Tests: Verify main user flows (Login, Sign Up, Onboarding).
 
 ---
